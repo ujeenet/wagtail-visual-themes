@@ -140,7 +140,7 @@ class Theme(PreviewableMixin, models.Model):
         super().save(*args, **kwargs)
 
     @classmethod
-    def get_default(cls) -> "Theme | None":
+    def get_default(cls) -> Theme | None:
         return cls._default_manager.filter(is_default=True).first()
 
     @cached_property
@@ -401,7 +401,7 @@ class ThemedPageMixin(models.Model):
     class Meta:
         abstract = True
 
-    def get_active_theme(self) -> "Theme | None":
+    def get_active_theme(self) -> Theme | None:
         from .resolver import resolve_theme_for_page
 
         return resolve_theme_for_page(self)

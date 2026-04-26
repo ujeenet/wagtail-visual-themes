@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 from django import forms
 
 if TYPE_CHECKING:
-    from .models import BrandColor
+    pass
 
 
 class ColorPreviewSelect(forms.Select):

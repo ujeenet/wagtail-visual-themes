@@ -25,7 +25,7 @@ def _color_pair(name: str, value: str) -> list[str]:
     return lines
 
 
-def _brand_color_lines(color: "BrandColor", *, dark: bool) -> list[str]:
+def _brand_color_lines(color: BrandColor, *, dark: bool) -> list[str]:
     value = color.effective_dark_value if dark else color.color_value
     contrast = color.contrast_color_dark if dark else color.contrast_color
     lines = _color_pair(f"color-{color.slug}", value)
@@ -33,7 +33,7 @@ def _brand_color_lines(color: "BrandColor", *, dark: bool) -> list[str]:
     return lines
 
 
-def _semantic_lines(theme: "Theme", *, dark: bool) -> list[str]:
+def _semantic_lines(theme: Theme, *, dark: bool) -> list[str]:
     """Light + dark semantic colors. Falls back to light value if dark blank."""
     pairs: list[tuple[str, str]] = []
 
@@ -54,7 +54,7 @@ def _semantic_lines(theme: "Theme", *, dark: bool) -> list[str]:
     return out
 
 
-def _surface_lines(theme: "Theme", *, dark: bool) -> list[str]:
+def _surface_lines(theme: Theme, *, dark: bool) -> list[str]:
     if dark:
         mapping = {
             "color-bg": theme.dark_bg,
@@ -79,7 +79,7 @@ def _surface_lines(theme: "Theme", *, dark: bool) -> list[str]:
     return out
 
 
-def _typography_lines(theme: "Theme") -> list[str]:
+def _typography_lines(theme: Theme) -> list[str]:
     base_px = FONT_SCALE_BASE_PX.get(FontScale(theme.font_scale), 16)
     return [
         f"  --font-heading: {theme.heading_font};",
@@ -90,7 +90,7 @@ def _typography_lines(theme: "Theme") -> list[str]:
     ]
 
 
-def _radius_lines(theme: "Theme") -> list[str]:
+def _radius_lines(theme: Theme) -> list[str]:
     return [
         f"  --radius-sm: {theme.radius_sm};",
         f"  --radius-md: {theme.radius_md};",
@@ -99,7 +99,7 @@ def _radius_lines(theme: "Theme") -> list[str]:
     ]
 
 
-def _shadow_lines(theme: "Theme") -> list[str]:
+def _shadow_lines(theme: Theme) -> list[str]:
     return [
         f"  --shadow-sm: {theme.shadow_sm};",
         f"  --shadow-md: {theme.shadow_md};",
@@ -107,7 +107,7 @@ def _shadow_lines(theme: "Theme") -> list[str]:
     ]
 
 
-def emit_theme_css(theme: "Theme", selector_root: str = ":root") -> str:
+def emit_theme_css(theme: Theme, selector_root: str = ":root") -> str:
     """Render a theme into the body of a `<style>` block.
 
     Layout:

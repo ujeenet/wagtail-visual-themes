@@ -46,7 +46,7 @@ class BrandColorChooserPanel(FieldPanel):
             if not self.form or self.field_name not in self.form.fields:
                 return
 
-            from .models import BrandColor, Theme
+            from .models import BrandColor
 
             field = self.form.fields[self.field_name]
             theme = self._get_theme()
