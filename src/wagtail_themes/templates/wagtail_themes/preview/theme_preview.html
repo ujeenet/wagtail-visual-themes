@@ -1,0 +1,176 @@
+{% load wagtail_themes %}<!DOCTYPE html>
+<html lang="en" data-theme="{{ preview_mode|default:'light' }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ theme.name }} — preview</title>
+    {% theme_css theme=theme %}
+    <style>
+        :root { color-scheme: light dark; }
+        html, body { margin: 0; padding: 0; }
+        body {
+            background: var(--color-bg);
+            color: var(--color-text-primary);
+            font-family: var(--font-body);
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-body);
+            line-height: 1.55;
+            min-height: 100vh;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            font-weight: var(--font-weight-heading);
+            color: var(--color-text-primary);
+            margin: 0 0 0.5em;
+        }
+        h1 { font-size: 2.25rem; } h2 { font-size: 1.5rem; }
+        h3 { font-size: 1.25rem; }
+        a { color: var(--color-link); }
+        .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+        .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+        .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+        .card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+        }
+        .swatch {
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            display: flex; flex-direction: column; gap: 8px;
+            background: var(--color-surface);
+        }
+        .swatch .dot {
+            height: 56px; border-radius: var(--radius-sm);
+            border: 1px solid var(--color-border);
+        }
+        .swatch .lbl { font-size: 12px; color: var(--color-text-secondary); }
+        .swatch .nm  { font-size: 14px; font-weight: 600; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            border: 1px solid transparent;
+            font-weight: 600; font-size: 14px;
+            cursor: pointer; line-height: 1;
+        }
+        .btn-primary  { background: var(--color-primary, var(--color-info)); color: var(--color-primary-contrast, #fff); }
+        .btn-secondary{ background: var(--color-secondary, var(--color-surface)); color: var(--color-secondary-contrast, var(--color-text-primary)); border-color: var(--color-border); }
+        .btn-outline  { background: transparent; color: var(--color-text-primary); border-color: var(--color-border); }
+        .alert {
+            padding: 12px 16px; border-radius: var(--radius-md);
+            border-left: 4px solid;
+            background: var(--color-surface); margin-bottom: 12px;
+        }
+        .alert-success { border-color: var(--color-success); }
+        .alert-warning { border-color: var(--color-warning); }
+        .alert-error   { border-color: var(--color-error); }
+        .alert-info    { border-color: var(--color-info); }
+        .shadow-demo  { padding: 24px; border-radius: var(--radius-md); background: var(--color-surface); }
+        section { margin-bottom: 40px; }
+        section h2 {
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 6px; margin-bottom: 16px;
+        }
+        .meta { color: var(--color-text-secondary); }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <header style="margin-bottom: 32px;">
+        <p class="meta" style="margin:0;">wagtail-themes preview</p>
+        <h1 style="margin:4px 0 0;">{{ theme.name }}</h1>
+        <p class="meta">Mode: <code>{{ preview_mode|default:'light' }}</code> · Default: <code>{{ theme.default_mode }}</code></p>
+    </header>
+
+    <section>
+        <h2>Surface colors</h2>
+        <div class="grid">
+            <div class="swatch"><div class="dot" style="background: var(--color-bg);"></div><span class="nm">Background</span><span class="lbl">--color-bg</span></div>
+            <div class="swatch"><div class="dot" style="background: var(--color-surface);"></div><span class="nm">Surface</span><span class="lbl">--color-surface</span></div>
+            <div class="swatch"><div class="dot" style="background: var(--color-text-primary);"></div><span class="nm">Text primary</span><span class="lbl">--color-text-primary</span></div>
+            <div class="swatch"><div class="dot" style="background: var(--color-text-secondary);"></div><span class="nm">Text secondary</span><span class="lbl">--color-text-secondary</span></div>
+            <div class="swatch"><div class="dot" style="background: var(--color-text-muted);"></div><span class="nm">Text muted</span><span class="lbl">--color-text-muted</span></div>
+            <div class="swatch"><div class="dot" style="background: var(--color-border);"></div><span class="nm">Border</span><span class="lbl">--color-border</span></div>
+        </div>
+    </section>
+
+    {% if theme.brand_colors.all %}
+    <section>
+        <h2>Brand colors</h2>
+        <div class="grid">
+            {% for c in theme.brand_colors.all %}
+            <div class="swatch">
+                <div class="dot" style="background: {{ c.color_value }};"></div>
+                <span class="nm">{{ c.name }}</span>
+                <span class="lbl">{{ c.css_var_name }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <section>
+        <h2>Semantic colors</h2>
+        <div class="grid">
+            <div class="swatch"><div class="dot" style="background: var(--color-success);"></div><span class="nm">Success</span></div>
+            <div class="swatch"><div class="dot" style="background: var(--color-warning);"></div><span class="nm">Warning</span></div>
+            <div class="swatch"><div class="dot" style="background: var(--color-error);"></div><span class="nm">Error</span></div>
+            <div class="swatch"><div class="dot" style="background: var(--color-info);"></div><span class="nm">Info</span></div>
+            <div class="swatch"><div class="dot" style="background: var(--color-link);"></div><span class="nm">Link</span></div>
+            <div class="swatch"><div class="dot" style="background: var(--color-focus-ring);"></div><span class="nm">Focus ring</span></div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Typography</h2>
+        <div class="card">
+            <h1>Heading 1 — the quick brown fox</h1>
+            <h2>Heading 2 — sphinx of black quartz</h2>
+            <h3>Heading 3 — judge my vow</h3>
+            <p>Body copy demonstrates <strong>weight</strong> and <em>style</em>. <a href="#">A link.</a></p>
+            <p class="meta">Secondary body text.</p>
+        </div>
+    </section>
+
+    <section>
+        <h2>Border radii</h2>
+        <div class="row">
+            <div style="background: var(--color-surface); border:1px solid var(--color-border); width: 80px; height: 80px; border-radius: var(--radius-sm);"></div>
+            <div style="background: var(--color-surface); border:1px solid var(--color-border); width: 80px; height: 80px; border-radius: var(--radius-md);"></div>
+            <div style="background: var(--color-surface); border:1px solid var(--color-border); width: 80px; height: 80px; border-radius: var(--radius-lg);"></div>
+            <div style="background: var(--color-surface); border:1px solid var(--color-border); width: 80px; height: 80px; border-radius: var(--radius-full);"></div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Shadows</h2>
+        <div class="row">
+            <div class="shadow-demo" style="box-shadow: var(--shadow-sm);">--shadow-sm</div>
+            <div class="shadow-demo" style="box-shadow: var(--shadow-md);">--shadow-md</div>
+            <div class="shadow-demo" style="box-shadow: var(--shadow-lg);">--shadow-lg</div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Buttons</h2>
+        <div class="row">
+            <button class="btn btn-primary">Primary</button>
+            <button class="btn btn-secondary">Secondary</button>
+            <button class="btn btn-outline">Outline</button>
+        </div>
+    </section>
+
+    <section>
+        <h2>Alerts</h2>
+        <div class="alert alert-success">Success — this is a success alert.</div>
+        <div class="alert alert-warning">Warning — this is a warning alert.</div>
+        <div class="alert alert-error">Error — this is an error alert.</div>
+        <div class="alert alert-info">Info — this is an info alert.</div>
+    </section>
+</div>
+</body>
+</html>

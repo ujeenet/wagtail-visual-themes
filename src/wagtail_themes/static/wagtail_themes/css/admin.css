@@ -1,0 +1,4 @@
+/* Admin tweaks for the Theme/BrandColor snippet listings. */
+.snippets .listing td.color {
+    width: 32px;
+}

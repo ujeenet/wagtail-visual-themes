@@ -1,0 +1,12 @@
+<script>
+(function () {
+    try {
+        var KEY = "wagtail-themes:mode";
+        var saved = localStorage.getItem(KEY);
+        var root = document.documentElement;
+        if (saved === "light" || saved === "dark" || saved === "system") {
+            root.setAttribute("data-theme", saved);
+        }
+    } catch (e) { /* localStorage unavailable */ }
+})();
+</script>

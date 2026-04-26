@@ -1,0 +1,10 @@
+<div class="color-preview-select-wrapper">
+    <select name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>
+        {% for group, options, group_index in widget.optgroups %}
+            {% for option in options %}
+                <option value="{{ option.value|default:'' }}"{% if option.selected %} selected{% endif %}
+                        data-color="{{ option.value }}">{{ option.label }}</option>
+            {% endfor %}
+        {% endfor %}
+    </select>
+</div>

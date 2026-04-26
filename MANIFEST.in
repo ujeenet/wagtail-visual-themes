@@ -1,0 +1,6 @@
+include README.md
+include LICENSE
+include CHANGELOG.md
+recursive-include src/wagtail_themes/templates *
+recursive-include src/wagtail_themes/static *
+recursive-include src/wagtail_themes/migrations *.py

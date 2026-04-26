@@ -1,0 +1,33 @@
+.wt-switcher {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    padding: 2px;
+    border: 1px solid var(--color-border, #e2e8f0);
+    background: var(--color-surface, #f8fafc);
+    border-radius: var(--radius-full, 9999px);
+}
+
+.wt-switcher button {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 6px 10px;
+    border-radius: var(--radius-full, 9999px);
+    color: var(--color-text-secondary, #475569);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.wt-switcher button:hover {
+    color: var(--color-text-primary, #0f172a);
+}
+
+.wt-switcher button[aria-pressed="true"] {
+    background: var(--color-bg, #fff);
+    color: var(--color-text-primary, #0f172a);
+    box-shadow: var(--shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05));
+}

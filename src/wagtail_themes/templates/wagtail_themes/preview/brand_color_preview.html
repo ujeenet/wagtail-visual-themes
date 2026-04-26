@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{{ color.name }} — preview</title>
+    <style>
+        body { margin: 0; font-family: system-ui, sans-serif; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; min-height: 100vh; }
+        .panel { padding: 48px; display: flex; flex-direction: column; justify-content: center; }
+        .panel.light { background: #fff; color: #111; }
+        .panel.dark  { background: #0f172a; color: #f8fafc; }
+        .swatch { width: 100%; aspect-ratio: 16/9; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.15); margin-bottom: 24px; }
+        h2 { margin: 0 0 4px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7; }
+        h1 { margin: 0 0 8px; font-size: 28px; }
+        code { font-size: 12px; opacity: 0.7; }
+        .contrast-pill { display: inline-block; padding: 8px 16px; border-radius: 999px; font-weight: 600; }
+    </style>
+</head>
+<body>
+<div class="grid">
+    <div class="panel light">
+        <h2>Light mode</h2>
+        <h1>{{ color.name }}</h1>
+        <div class="swatch" style="background: {{ color.color_value }};"></div>
+        <div class="contrast-pill" style="background: {{ color.color_value }}; color: {{ color.contrast_color }};">
+            Contrast: {{ color.contrast_color }}
+        </div>
+        <code>{{ color.css_var_name }}: {{ color.color_value }}</code>
+    </div>
+    <div class="panel dark">
+        <h2>Dark mode</h2>
+        <h1>{{ color.name }}</h1>
+        <div class="swatch" style="background: {{ color.effective_dark_value }};"></div>
+        <div class="contrast-pill" style="background: {{ color.effective_dark_value }}; color: {{ color.contrast_color_dark }};">
+            Contrast: {{ color.contrast_color_dark }}
+        </div>
+        <code>{{ color.css_var_name }}: {{ color.effective_dark_value }}</code>
+    </div>
+</div>
+</body>
+</html>

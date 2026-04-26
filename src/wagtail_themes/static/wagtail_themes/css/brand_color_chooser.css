@@ -1,0 +1,136 @@
+/* Brand Color Chooser Widget Styles */
+
+.brand-color-chooser-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.brand-color-preview-swatch {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.brand-color-preview-swatch:hover { transform: scale(1.05); }
+
+.brand-color-select-container { flex: 1; min-width: 200px; position: relative; }
+
+.brand-color-select-hidden {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+}
+
+.brand-color-select-custom { position: relative; cursor: pointer; }
+
+.brand-color-select-selected {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--w-color-surface-field, #fff);
+    border: 1px solid var(--w-color-border-field-default, #ccc);
+    border-radius: 6px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.brand-color-select-custom:focus .brand-color-select-selected,
+.brand-color-select-custom:hover .brand-color-select-selected {
+    border-color: var(--w-color-border-field-hover, #00b0b9);
+    box-shadow: 0 0 0 2px rgba(0, 176, 185, 0.1);
+}
+
+.brand-color-select-custom.open .brand-color-select-selected {
+    border-color: var(--w-color-border-field-hover, #00b0b9);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.brand-color-select-arrow {
+    width: 20px;
+    height: 20px;
+    margin-left: auto;
+    color: var(--w-color-text-meta, #666);
+    transition: transform 0.2s;
+}
+
+.brand-color-select-custom.open .brand-color-select-arrow { transform: rotate(180deg); }
+
+.brand-color-select-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    background: var(--w-color-surface-field, #fff);
+    border: 1px solid var(--w-color-border-field-hover, #00b0b9);
+    border-top: none;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+}
+
+.brand-color-select-custom.open .brand-color-select-dropdown { display: block; }
+
+.brand-color-select-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.brand-color-select-option:hover { background: var(--w-color-surface-button-hover, #f0f0f0); }
+.brand-color-select-option.selected { background: var(--w-color-surface-button-active, #e0f7f7); }
+
+.brand-color-option-swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+}
+
+.brand-color-select-selected .brand-color-option-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+}
+
+.brand-color-option-label {
+    font-size: 14px;
+    color: var(--w-color-text-context, #333);
+    flex: 1;
+}
+
+.brand-color-empty-message {
+    padding: 16px;
+    text-align: center;
+    color: var(--w-color-text-meta, #666);
+    font-size: 13px;
+}
+
+.w-theme-dark .brand-color-preview-swatch { border-color: rgba(255, 255, 255, 0.2); }
+.w-theme-dark .brand-color-select-selected {
+    background: var(--w-color-surface-field, #1a1a1a);
+    border-color: var(--w-color-border-field-default, #444);
+}
+.w-theme-dark .brand-color-select-dropdown {
+    background: var(--w-color-surface-field, #1a1a1a);
+    border-color: var(--w-color-border-field-hover, #00b0b9);
+}
+.w-theme-dark .brand-color-select-option:hover { background: var(--w-color-surface-button-hover, #2a2a2a); }
+.w-theme-dark .brand-color-select-option.selected { background: var(--w-color-surface-button-active, #0a3a3a); }
+.w-theme-dark .brand-color-option-swatch { border-color: rgba(255, 255, 255, 0.2); }

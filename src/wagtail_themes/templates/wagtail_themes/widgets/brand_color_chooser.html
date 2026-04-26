@@ -1,0 +1,51 @@
+<div class="brand-color-chooser-wrapper" data-brand-color-chooser>
+    <div class="brand-color-preview-swatch"
+         {% if widget.selected_color %}style="background: {{ widget.selected_color.color_value }};"{% endif %}></div>
+    <div class="brand-color-select-container">
+        <select name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %} class="brand-color-select-hidden">
+            {% if widget.allow_empty %}
+                <option value=""{% if not widget.value %} selected{% endif %}>{{ widget.empty_label }}</option>
+            {% endif %}
+            {% for color in widget.brand_colors %}
+                <option value="{{ color.id }}"
+                        {% if color.selected %}selected{% endif %}
+                        data-color-value="{{ color.color_value }}">{{ color.name }}</option>
+            {% endfor %}
+        </select>
+        <div class="brand-color-select-custom" tabindex="0">
+            <div class="brand-color-select-selected">
+                <span class="brand-color-option-swatch"
+                      {% if widget.selected_color %}style="background: {{ widget.selected_color.color_value }};"
+                      {% else %}style="background: transparent; border-style: dashed;"{% endif %}></span>
+                <span class="brand-color-option-label">
+                    {% if widget.selected_color %}{{ widget.selected_color.name }}
+                    {% else %}{{ widget.empty_label }}{% endif %}
+                </span>
+                <svg class="brand-color-select-arrow" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="brand-color-select-dropdown">
+                {% if widget.allow_empty %}
+                    <div class="brand-color-select-option{% if not widget.value %} selected{% endif %}" data-value="">
+                        <span class="brand-color-option-swatch" style="background: transparent; border-style: dashed;"></span>
+                        <span class="brand-color-option-label">{{ widget.empty_label }}</span>
+                    </div>
+                {% endif %}
+                {% for color in widget.brand_colors %}
+                    <div class="brand-color-select-option{% if color.selected %} selected{% endif %}"
+                         data-value="{{ color.id }}"
+                         data-color-value="{{ color.color_value }}">
+                        <span class="brand-color-option-swatch" style="background: {{ color.color_value }};"></span>
+                        <span class="brand-color-option-label">{{ color.name }}</span>
+                    </div>
+                {% endfor %}
+                {% if not widget.brand_colors %}
+                    <div class="brand-color-empty-message">
+                        No brand colors available for this theme yet.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
