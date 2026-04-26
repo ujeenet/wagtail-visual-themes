@@ -1,4 +1,4 @@
-"""Minimal Django/Wagtail settings for running the wagtail-themes test suite."""
+"""Minimal Django/Wagtail settings for running the wagtail-visual-themes test suite."""
 
 from pathlib import Path
 
@@ -73,7 +73,7 @@ STATIC_ROOT = BASE_DIR / "static_collected"
 USE_TZ = True
 TIME_ZONE = "UTC"
 
-WAGTAIL_SITE_NAME = "wagtail-themes tests"
+WAGTAIL_SITE_NAME = "wagtail-visual-themes tests"
 WAGTAILADMIN_BASE_URL = "http://localhost"
 WAGTAILSEARCH_BACKENDS = {
     "default": {"BACKEND": "wagtail.search.backends.database"},

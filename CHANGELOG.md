@@ -6,7 +6,7 @@ All notable changes to this project are documented in this file. The format is b
 
 ### Added
 
-- Initial release of `wagtail-themes`.
+- Initial release of `wagtail-visual-themes`.
 - `Theme` snippet with surface colors (light + dark), semantic colors, typography, border radii and shadows.
 - `BrandColor` snippet attached to a Theme, emitted as `--color-<slug>` CSS variables with auto-computed `-contrast` and `-rgb` companions.
 - `ThemedPageMixin` for opting Wagtail Pages into theme inheritance via the page tree.

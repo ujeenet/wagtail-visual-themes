@@ -1,4 +1,4 @@
-# wagtail-themes
+# wagtail-visual-themes
 
 Reusable visual themes for [Wagtail](https://wagtail.org/) pages — colors, dark/light mode, typography, border radii and shadows. Themes are managed as snippets, rendered as a single `<style>` block of CSS variables, and resolved automatically per page.
 
@@ -44,7 +44,7 @@ The package is **zero-coupling**: it doesn't know about your tenant model, your 
 ## Installation
 
 ```bash
-pip install wagtail-themes
+pip install wagtail-visual-themes
 ```
 
 Add to `INSTALLED_APPS` (after `wagtail.snippets`):
@@ -446,7 +446,7 @@ a { color: var(--color-link); }
 
 ## Tailwind integration
 
-`wagtail-themes` plays cleanly with Tailwind v3+. The trick: tell Tailwind your theme tokens are CSS variables containing RGB triplets.
+`wagtail-visual-themes` plays cleanly with Tailwind v3+. The trick: tell Tailwind your theme tokens are CSS variables containing RGB triplets.
 
 In `tailwind.config.js`:
 
@@ -497,7 +497,7 @@ You can now write Tailwind that respects the theme:
 </div>
 ```
 
-The `bg-primary/80` syntax requires the `-rgb` companion variables — `wagtail-themes` emits these automatically for every solid color.
+The `bg-primary/80` syntax requires the `-rgb` companion variables — `wagtail-visual-themes` emits these automatically for every solid color.
 
 ---
 
@@ -850,8 +850,8 @@ Intentional. v1 only ships pure tokens (colors, radii, shadows, typography). Com
 ## Development
 
 ```bash
-git clone https://github.com/ujeenet/wagtail-themes.git
-cd wagtail-themes
+git clone https://github.com/ujeenet/wagtail-visual-themes.git
+cd wagtail-visual-themes
 uv venv && source .venv/bin/activate
 uv pip install -e ".[dev]"
 
@@ -878,9 +878,9 @@ CI runs on every push and PR via [.github/workflows/ci.yml](.github/workflows/ci
 1. Create a PyPI account at https://pypi.org/account/register/.
 2. Go to https://pypi.org/manage/account/publishing/ and click *Add a new pending publisher*.
 3. Fill in:
-   - **PyPI Project Name**: `wagtail-themes`
+   - **PyPI Project Name**: `wagtail-visual-themes`
    - **Owner**: `ujeenet`
-   - **Repository name**: `wagtail-themes`
+   - **Repository name**: `wagtail-visual-themes`
    - **Workflow name**: `publish.yml`
    - **Environment name**: `pypi`
 4. In the GitHub repo, go to *Settings → Environments → New environment*, name it `pypi`. (You can add manual approval here if you want a gate before each release.)

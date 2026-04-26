@@ -53,7 +53,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/wagtail-themes
+      url: https://pypi.org/p/wagtail-visual-themes
     permissions:
       # Mandatory for PyPI Trusted Publishing (OIDC).
       id-token: write

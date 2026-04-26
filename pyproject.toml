@@ -3,8 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "wagtail-themes"
-version = "0.1.0"
+name = "wagtail-visual-themes"
+version = "0.1.1"
 description = "Reusable visual themes (colors, dark/light mode, radii, shadows, typography) for Wagtail pages."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -46,11 +46,11 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/ujeenet/wagtail-themes"
-Documentation = "https://github.com/ujeenet/wagtail-themes#readme"
-Repository = "https://github.com/ujeenet/wagtail-themes"
-Issues = "https://github.com/ujeenet/wagtail-themes/issues"
-Changelog = "https://github.com/ujeenet/wagtail-themes/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/ujeenet/wagtail-visual-themes"
+Documentation = "https://github.com/ujeenet/wagtail-visual-themes#readme"
+Repository = "https://github.com/ujeenet/wagtail-visual-themes"
+Issues = "https://github.com/ujeenet/wagtail-visual-themes/issues"
+Changelog = "https://github.com/ujeenet/wagtail-visual-themes/blob/main/CHANGELOG.md"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/wagtail_themes"]

@@ -1,4 +1,4 @@
-"""wagtail-themes: reusable visual themes for Wagtail pages."""
+"""wagtail-visual-themes: reusable visual themes for Wagtail pages."""
 
 __version__ = "0.1.0"
 

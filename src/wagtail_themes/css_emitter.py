@@ -134,7 +134,7 @@ def emit_theme_css(theme: Theme, selector_root: str = ":root") -> str:
     for color in brand_colors:
         dark_lines.extend(_brand_color_lines(color, dark=True))
 
-    out = [f"/* wagtail-themes: {theme.name} */"]
+    out = [f"/* wagtail-visual-themes: {theme.name} */"]
     out.append(f"{selector_root} {{")
     out.extend(light_lines)
     out.append("}")
