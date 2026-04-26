@@ -1056,3 +1056,7 @@ Watch the *Actions* tab. On success, the package is on PyPI and a GitHub Release
 ## License
 
 MIT — see [LICENSE](./LICENSE).
+
+                            [![Latest on Django Packages](https://img.shields.io/badge/PyPI-{{ package.slug
+                            }}-tags-8c3c26.svg)](https://djangopackages.org/packages/p/wagtail-visual-themes/)
+                        
