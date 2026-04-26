@@ -18,3 +18,9 @@ def wagtail_themes_admin_css() -> str:
         '<link rel="stylesheet" href="{}">',
         static("wagtail_themes/css/admin.css"),
     )
+
+
+@hooks.register("register_icons")
+def wagtail_themes_register_icons(icons: list[str]) -> list[str]:
+    """Register custom SVG icons shipped with the package."""
+    return icons + ["wagtailadmin/icons/wagtail-themes-palette.svg"]

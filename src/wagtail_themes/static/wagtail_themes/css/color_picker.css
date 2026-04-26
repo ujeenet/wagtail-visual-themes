@@ -1,0 +1,40 @@
+/* Paired hex color picker — text input + native <input type="color"> swatch. */
+
+.wt-color-picker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wt-color-picker__swatch {
+    width: 44px;
+    height: 38px;
+    padding: 2px;
+    border: 1px solid var(--w-color-border-field-default, #ccc);
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.wt-color-picker__swatch:hover,
+.wt-color-picker__swatch:focus {
+    border-color: var(--w-color-border-field-hover, #00b0b9);
+    box-shadow: 0 0 0 2px rgba(0, 176, 185, 0.1);
+    outline: none;
+}
+
+.wt-color-picker__swatch::-webkit-color-swatch-wrapper { padding: 0; }
+.wt-color-picker__swatch::-webkit-color-swatch { border: none; border-radius: 4px; }
+.wt-color-picker__swatch::-moz-color-swatch { border: none; border-radius: 4px; }
+
+.wt-color-picker__text {
+    flex: 1;
+    min-width: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.w-theme-dark .wt-color-picker__swatch {
+    border-color: var(--w-color-border-field-default, #444);
+}

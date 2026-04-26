@@ -19,6 +19,7 @@ Reusable visual themes for [Wagtail](https://wagtail.org/) pages — colors, dar
 - [Tailwind integration](#tailwind-integration)
 - [Brand colors](#brand-colors)
 - [Theme resolution rules](#theme-resolution-rules)
+- [Permissions](#permissions)
 - [Template tag reference](#template-tag-reference)
 - [Python API reference](#python-api-reference)
 - [Recipes](#recipes)
@@ -26,6 +27,8 @@ Reusable visual themes for [Wagtail](https://wagtail.org/) pages — colors, dar
 - [Troubleshooting / FAQ](#troubleshooting--faq)
 - [Development](#development)
 - [License](#license)
+
+> **Editors:** see [docs/editor-guide.md](docs/editor-guide.md) for a non-technical walkthrough of creating themes and brand colors in the Wagtail admin.
 
 ---
 
@@ -377,6 +380,15 @@ var(--color-focus-ring)
 var(--color-<slug>)            /* e.g. var(--color-primary) */
 var(--color-<slug>-rgb)        /* RGB triplet, solid colors only */
 var(--color-<slug>-contrast)   /* foreground color */
+
+/* Tailwind-aligned 50→950 shade scale, auto-derived from each base color: */
+var(--color-<slug>-50)         /* lightest tint */
+var(--color-<slug>-100)
+…
+var(--color-<slug>-500)        /* same as --color-<slug>, the base */
+…
+var(--color-<slug>-900)
+var(--color-<slug>-950)        /* darkest shade */
 ```
 
 ### Typography
@@ -387,6 +399,44 @@ var(--font-body)
 var(--font-weight-heading)
 var(--font-weight-body)
 var(--font-size-base)          /* in px, controlled by font_scale */
+
+/* Modular size scale (rems, anchored to font-size-base) */
+var(--font-size-xs)            /* 0.75rem  */
+var(--font-size-sm)            /* 0.875rem */
+var(--font-size-base)          /* 1rem     */
+var(--font-size-lg)            /* 1.125rem */
+var(--font-size-xl)            /* 1.25rem  */
+var(--font-size-2xl)           /* 1.5rem   */
+var(--font-size-3xl)           /* 1.875rem */
+var(--font-size-4xl)           /* 2.25rem  */
+
+/* Line height & letter spacing */
+var(--leading-tight)           /* 1.25 */
+var(--leading-normal)          /* 1.5  */
+var(--leading-relaxed)         /* 1.75 */
+
+var(--tracking-tight)          /* -0.025em */
+var(--tracking-normal)         /* 0em      */
+var(--tracking-wide)           /* 0.05em   */
+```
+
+### Spacing
+
+```css
+var(--space-0)                 /* 0       */
+var(--space-px)                /* 1px     */
+var(--space-1)                 /* 0.25rem */
+var(--space-2)                 /* 0.5rem  */
+var(--space-3)                 /* 0.75rem */
+var(--space-4)                 /* 1rem    */
+var(--space-5)                 /* 1.25rem */
+var(--space-6)                 /* 1.5rem  */
+var(--space-8)                 /* 2rem    */
+var(--space-10)                /* 2.5rem  */
+var(--space-12)                /* 3rem    */
+var(--space-16)                /* 4rem    */
+var(--space-20)                /* 5rem    */
+var(--space-24)                /* 6rem    */
 ```
 
 ### Geometry
@@ -400,6 +450,52 @@ var(--radius-full)             /* 9999px — for pills/circles */
 var(--shadow-sm)
 var(--shadow-md)
 var(--shadow-lg)
+
+var(--border-1)                /* 1px */
+var(--border-2)                /* 2px */
+var(--border-4)                /* 4px */
+var(--border-8)                /* 8px */
+```
+
+### Z-index scale
+
+```css
+var(--z-base)                  /* 0  */
+var(--z-dropdown)              /* 10 */
+var(--z-sticky)                /* 20 */
+var(--z-fixed)                 /* 30 */
+var(--z-overlay)               /* 40 */
+var(--z-modal)                 /* 50 */
+var(--z-popover)               /* 60 */
+var(--z-tooltip)               /* 70 */
+var(--z-toast)                 /* 80 */
+```
+
+### Transitions
+
+```css
+var(--duration-fast)           /* 150ms */
+var(--duration-normal)         /* 200ms */
+var(--duration-slow)           /* 300ms */
+
+var(--ease-out)                /* cubic-bezier(0, 0, 0.2, 1)     */
+var(--ease-in-out)             /* cubic-bezier(0.4, 0, 0.2, 1)   */
+```
+
+### State overlays
+
+Opacity values for hover / active / disabled states. Combine with the `-rgb` color companions or with `opacity:`.
+
+```css
+var(--state-hover-overlay)     /* 0.08 */
+var(--state-active-overlay)    /* 0.16 */
+var(--state-disabled-opacity)  /* 0.5  */
+
+/* Practical use: */
+.btn-primary:hover {
+    background: rgb(var(--color-primary-rgb) / calc(1 - var(--state-hover-overlay)));
+}
+.btn[disabled] { opacity: var(--state-disabled-opacity); }
 ```
 
 ### Practical example
@@ -585,6 +681,58 @@ Or set `request.active_theme = my_theme` in middleware/a view.
 
 ---
 
+## Permissions
+
+The package distinguishes **editing a Theme record** (full CRUD) from **picking which Theme applies to a page or site**. That split lets you give editorial staff the ability to assign existing themes without trusting them to redesign the system.
+
+### Permissions registered
+
+Standard Django CRUD perms are auto-generated for both models:
+
+- `wagtail_themes.add_theme` / `change_theme` / `delete_theme` / `view_theme`
+- `wagtail_themes.add_brandcolor` / `change_brandcolor` / `delete_brandcolor` / `view_brandcolor`
+
+Plus one custom permission:
+
+- `wagtail_themes.set_active_theme` — grants the ability to *assign* a Theme to a `ThemedPageMixin` page or to the Wagtail Site setting. Without it, the **Theme** field on the page edit form is hidden.
+
+### Preset groups
+
+The package ships a management command that creates two pre-configured groups:
+
+```bash
+python manage.py wagtail_themes_setup_groups
+# Re-run with --reset to overwrite any drift on the groups' permissions.
+```
+
+| Group | What members can do |
+|---|---|
+| **Theme Editor** | Full CRUD on `Theme` and `BrandColor`, plus `set_active_theme`. Use for designers and tech-aware editors. |
+| **Theme Selector** | View-only on `Theme` and `BrandColor`, plus `set_active_theme`. Use for editorial staff who pick existing themes for pages but shouldn't be tweaking the design system. |
+
+The command is idempotent — safe to re-run after package upgrades to reattach any newly added permissions.
+
+### How the gating works
+
+`ThemedPageMixin.theme_panels` already declares the gate:
+
+```python
+theme_panels = [FieldPanel("theme", permission="wagtail_themes.set_active_theme")]
+```
+
+So users without `set_active_theme` simply don't see the field. `ThemeSiteSetting.panels` does the same for the site-level FK.
+
+For the snippet menu (where Theme/BrandColor records are edited), Wagtail's standard model-level permissions apply: a user without at least `view_theme` won't see the Themes menu group at all.
+
+### Custom workflows
+
+If neither preset fits, build your own group in the Django admin (or via fixtures) using any combination of the permissions above. Common variations:
+
+- **Designer-only Theme Editor**, no `set_active_theme`. Designers iterate on themes; editors apply them.
+- **Locked-down Selector**, only `set_active_theme`. No view of Theme records — they pick from the FK dropdown only.
+
+---
+
 ## Template tag reference
 
 All tags live under `{% load wagtail_themes %}`.
@@ -592,21 +740,24 @@ All tags live under `{% load wagtail_themes %}`.
 ### `{% theme_css %}`
 
 ```django
-{% theme_css %}                              {# auto-resolved theme #}
+{% theme_css %}                              {# auto-resolved theme, with fallback #}
 {% theme_css theme=my_theme %}               {# explicit override   #}
 {% theme_css include_style_tag=False %}      {# raw CSS body, no <style> #}
 {% theme_css include_fonts=False %}          {# don't emit <link> for custom_fonts_css_url #}
+{% theme_css fallback=False %}               {# emit nothing if no Theme is configured #}
 ```
 
-Renders one `<style>` block (and optionally a `<link>` for custom fonts) containing every CSS variable.
+Renders one `<style>` block (and optionally a `<link>` for custom fonts) containing every CSS variable. When no Theme matches the resolution chain, falls back to an in-memory `Theme()` so the model's field defaults still emit usable CSS — opt out with `fallback=False`.
 
 ### `{% theme_html_attrs %}`
 
 ```django
 <html {% theme_html_attrs %}>
+{# or, to emit nothing when no Theme is configured: #}
+<html {% theme_html_attrs fallback=False %}>
 ```
 
-Outputs `data-theme="<default_mode>" data-theme-name="<slug>" class="theme-<slug>"`. Use this on `<html>` so visitor mode preferences and theme-scoped CSS classes both work.
+Outputs `data-theme="<default_mode>" data-theme-name="<slug>" class="theme-<slug>"`. Use this on `<html>` so visitor mode preferences and theme-scoped CSS classes both work. Same fallback semantics as `{% theme_css %}` — emits `data-theme="system"` defaults rather than nothing, unless `fallback=False`.
 
 ### `{% theme_no_flash %}`
 
@@ -820,10 +971,7 @@ def test_homepage_inherits_default_theme(rf, root_page):
 ## Troubleshooting / FAQ
 
 **The page renders without a theme — `var(--color-bg)` is undefined.**
-The resolver returned `None`. Options:
-- Mark a Theme as `is_default=True`.
-- Add `wagtail.contrib.settings` and pick a theme in *Settings → Themes*.
-- Make your Page model inherit from `ThemedPageMixin` and set the theme on the page.
+This shouldn't happen on a fresh install: when the resolver returns `None`, `{% theme_css %}` falls back to the model's baked-in field defaults (white surfaces, slate text, navy dark mode, etc.) and `{% theme_html_attrs %}` falls back to `data-theme="system"`. If you're still seeing undefined variables, either (a) you're inside a non-request context (the tag couldn't reach the resolver), or (b) you've explicitly opted out via `{% theme_css fallback=False %}`. To customise the fallback, create a `Theme` and tick **is_default**.
 
 **Dark mode doesn't switch on click.**
 - Check `<html>` actually changes `data-theme`. Open devtools → Elements.

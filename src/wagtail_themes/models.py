@@ -21,6 +21,7 @@ from .constants import (
     FontWeight,
     ThemeMode,
 )
+from .panels import ColorFieldPanel
 
 
 def _slugify_token(name: str) -> str:
@@ -54,33 +55,135 @@ class Theme(PreviewableMixin, models.Model):
         help_text=_("Initial theme mode when the visitor has no preference saved."),
     )
 
-    light_bg = models.CharField(max_length=64, default="#ffffff")
-    light_surface = models.CharField(max_length=64, default="#f8fafc")
-    light_text_primary = models.CharField(max_length=64, default="#0f172a")
-    light_text_secondary = models.CharField(max_length=64, default="#475569")
-    light_text_muted = models.CharField(max_length=64, default="#94a3b8")
-    light_border = models.CharField(max_length=64, default="#e2e8f0")
+    light_bg = models.CharField(
+        max_length=64,
+        default="#ffffff",
+        help_text=_("Page background in light mode. Emits --color-bg."),
+    )
+    light_surface = models.CharField(
+        max_length=64,
+        default="#f8fafc",
+        help_text=_(
+            "Card / panel background, slightly different from page background. "
+            "Use for nested content. Emits --color-surface."
+        ),
+    )
+    light_text_primary = models.CharField(
+        max_length=64,
+        default="#0f172a",
+        help_text=_("Body text colour. Aim for ≥7:1 contrast against --color-bg."),
+    )
+    light_text_secondary = models.CharField(
+        max_length=64,
+        default="#475569",
+        help_text=_("Subdued text — captions, metadata. Should still pass AA contrast."),
+    )
+    light_text_muted = models.CharField(
+        max_length=64,
+        default="#94a3b8",
+        help_text=_("Disabled / placeholder text. Lower contrast intentional."),
+    )
+    light_border = models.CharField(
+        max_length=64,
+        default="#e2e8f0",
+        help_text=_("Border colour for cards, dividers, inputs."),
+    )
 
-    dark_bg = models.CharField(max_length=64, default="#0f172a")
-    dark_surface = models.CharField(max_length=64, default="#1e293b")
-    dark_text_primary = models.CharField(max_length=64, default="#f8fafc")
-    dark_text_secondary = models.CharField(max_length=64, default="#cbd5e1")
-    dark_text_muted = models.CharField(max_length=64, default="#64748b")
-    dark_border = models.CharField(max_length=64, default="#334155")
+    dark_bg = models.CharField(
+        max_length=64,
+        default="#0f172a",
+        help_text=_("Page background in dark mode."),
+    )
+    dark_surface = models.CharField(
+        max_length=64,
+        default="#1e293b",
+        help_text=_("Card / panel background in dark mode."),
+    )
+    dark_text_primary = models.CharField(
+        max_length=64,
+        default="#f8fafc",
+        help_text=_("Body text colour in dark mode."),
+    )
+    dark_text_secondary = models.CharField(
+        max_length=64,
+        default="#cbd5e1",
+        help_text=_("Subdued text in dark mode."),
+    )
+    dark_text_muted = models.CharField(
+        max_length=64,
+        default="#64748b",
+        help_text=_("Disabled / placeholder text in dark mode."),
+    )
+    dark_border = models.CharField(
+        max_length=64,
+        default="#334155",
+        help_text=_("Border colour in dark mode."),
+    )
 
-    success_color = models.CharField(max_length=64, default="#16a34a")
-    warning_color = models.CharField(max_length=64, default="#f59e0b")
-    error_color = models.CharField(max_length=64, default="#dc2626")
-    info_color = models.CharField(max_length=64, default="#2563eb")
-    link_color = models.CharField(max_length=64, default="#2563eb")
-    focus_ring_color = models.CharField(max_length=64, default="#3b82f6")
+    success_color = models.CharField(
+        max_length=64,
+        default="#16a34a",
+        help_text=_("Used for confirmations, valid form state, success toasts."),
+    )
+    warning_color = models.CharField(
+        max_length=64,
+        default="#f59e0b",
+        help_text=_("Used for cautions, expiring states, banners."),
+    )
+    error_color = models.CharField(
+        max_length=64,
+        default="#dc2626",
+        help_text=_("Used for destructive actions, validation errors, error toasts."),
+    )
+    info_color = models.CharField(
+        max_length=64,
+        default="#2563eb",
+        help_text=_("Used for informational banners and neutral notifications."),
+    )
+    link_color = models.CharField(
+        max_length=64,
+        default="#2563eb",
+        help_text=_("Default anchor colour. Often the same as a brand colour."),
+    )
+    focus_ring_color = models.CharField(
+        max_length=64,
+        default="#3b82f6",
+        help_text=_(
+            "Outline colour for keyboard focus. Should contrast strongly with both "
+            "--color-bg and surrounding interactive elements."
+        ),
+    )
 
-    success_color_dark = models.CharField(max_length=64, blank=True)
-    warning_color_dark = models.CharField(max_length=64, blank=True)
-    error_color_dark = models.CharField(max_length=64, blank=True)
-    info_color_dark = models.CharField(max_length=64, blank=True)
-    link_color_dark = models.CharField(max_length=64, blank=True)
-    focus_ring_color_dark = models.CharField(max_length=64, blank=True)
+    success_color_dark = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text=_("Optional dark-mode override. Leave blank to reuse the light value."),
+    )
+    warning_color_dark = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text=_("Optional dark-mode override."),
+    )
+    error_color_dark = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text=_("Optional dark-mode override."),
+    )
+    info_color_dark = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text=_("Optional dark-mode override."),
+    )
+    link_color_dark = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text=_("Optional dark-mode override."),
+    )
+    focus_ring_color_dark = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text=_("Optional dark-mode override."),
+    )
 
     heading_font = models.CharField(
         max_length=255,
@@ -130,6 +233,12 @@ class Theme(PreviewableMixin, models.Model):
         verbose_name = _("Theme")
         verbose_name_plural = _("Themes")
         ordering = ["name"]
+        permissions = [
+            (
+                "set_active_theme",
+                "Can set the active theme on a page or site",
+            ),
+        ]
 
     def __str__(self) -> str:
         return self.name
@@ -160,7 +269,21 @@ class Theme(PreviewableMixin, models.Model):
         return "wagtail_themes/preview/theme_preview.html"
 
     def get_preview_context(self, request: Any, mode_name: str) -> dict[str, Any]:
-        return {"theme": self, "preview_mode": mode_name or "light"}
+        return {
+            "theme": self,
+            "preview_mode": mode_name or "light",
+            "shade_keys": [
+                "50", "100", "200", "300", "400", "500",
+                "600", "700", "800", "900", "950",
+            ],
+            "spacing_keys": [
+                "0", "px", "1", "2", "3", "4", "5", "6",
+                "8", "10", "12", "16", "20", "24",
+            ],
+            "font_size_keys": [
+                "xs", "sm", "base", "lg", "xl", "2xl", "3xl", "4xl",
+            ],
+        }
 
     @classmethod
     def get_preview_modes(cls) -> list[tuple[str, str]]:
@@ -182,31 +305,37 @@ class Theme(PreviewableMixin, models.Model):
         MultiFieldPanel(
             [
                 FieldRowPanel(
-                    [FieldPanel("light_bg"), FieldPanel("dark_bg")]
-                ),
-                FieldRowPanel(
-                    [FieldPanel("light_surface"), FieldPanel("dark_surface")]
+                    [ColorFieldPanel("light_bg"), ColorFieldPanel("dark_bg")]
                 ),
                 FieldRowPanel(
                     [
-                        FieldPanel("light_text_primary"),
-                        FieldPanel("dark_text_primary"),
+                        ColorFieldPanel("light_surface"),
+                        ColorFieldPanel("dark_surface"),
                     ]
                 ),
                 FieldRowPanel(
                     [
-                        FieldPanel("light_text_secondary"),
-                        FieldPanel("dark_text_secondary"),
+                        ColorFieldPanel("light_text_primary"),
+                        ColorFieldPanel("dark_text_primary"),
                     ]
                 ),
                 FieldRowPanel(
                     [
-                        FieldPanel("light_text_muted"),
-                        FieldPanel("dark_text_muted"),
+                        ColorFieldPanel("light_text_secondary"),
+                        ColorFieldPanel("dark_text_secondary"),
                     ]
                 ),
                 FieldRowPanel(
-                    [FieldPanel("light_border"), FieldPanel("dark_border")]
+                    [
+                        ColorFieldPanel("light_text_muted"),
+                        ColorFieldPanel("dark_text_muted"),
+                    ]
+                ),
+                FieldRowPanel(
+                    [
+                        ColorFieldPanel("light_border"),
+                        ColorFieldPanel("dark_border"),
+                    ]
                 ),
             ],
             heading=_("Surface colors (light / dark)"),
@@ -215,24 +344,39 @@ class Theme(PreviewableMixin, models.Model):
         MultiFieldPanel(
             [
                 FieldRowPanel(
-                    [FieldPanel("success_color"), FieldPanel("success_color_dark")]
-                ),
-                FieldRowPanel(
-                    [FieldPanel("warning_color"), FieldPanel("warning_color_dark")]
-                ),
-                FieldRowPanel(
-                    [FieldPanel("error_color"), FieldPanel("error_color_dark")]
-                ),
-                FieldRowPanel(
-                    [FieldPanel("info_color"), FieldPanel("info_color_dark")]
-                ),
-                FieldRowPanel(
-                    [FieldPanel("link_color"), FieldPanel("link_color_dark")]
+                    [
+                        ColorFieldPanel("success_color"),
+                        ColorFieldPanel("success_color_dark"),
+                    ]
                 ),
                 FieldRowPanel(
                     [
-                        FieldPanel("focus_ring_color"),
-                        FieldPanel("focus_ring_color_dark"),
+                        ColorFieldPanel("warning_color"),
+                        ColorFieldPanel("warning_color_dark"),
+                    ]
+                ),
+                FieldRowPanel(
+                    [
+                        ColorFieldPanel("error_color"),
+                        ColorFieldPanel("error_color_dark"),
+                    ]
+                ),
+                FieldRowPanel(
+                    [
+                        ColorFieldPanel("info_color"),
+                        ColorFieldPanel("info_color_dark"),
+                    ]
+                ),
+                FieldRowPanel(
+                    [
+                        ColorFieldPanel("link_color"),
+                        ColorFieldPanel("link_color_dark"),
+                    ]
+                ),
+                FieldRowPanel(
+                    [
+                        ColorFieldPanel("focus_ring_color"),
+                        ColorFieldPanel("focus_ring_color_dark"),
                     ]
                 ),
             ],
@@ -290,17 +434,42 @@ class BrandColor(PreviewableMixin, models.Model):
         Theme, on_delete=models.CASCADE, related_name="brand_colors"
     )
     name = models.CharField(
-        max_length=100, help_text=_("e.g. 'Primary', 'Secondary', 'Accent'")
+        max_length=100,
+        help_text=_(
+            "Short, CSS-friendly name — e.g. 'Primary', 'Secondary', 'Accent', "
+            "'Aurora'. The slug becomes part of the variable: a name 'Primary "
+            "Brand' yields --color-primary-brand. Keep names consistent across "
+            "themes so swapping themes doesn't break references in your CSS."
+        ),
     )
     color_value = models.CharField(
         max_length=500,
-        help_text=_("Hex (#fff), rgb(), rgba(), or a CSS gradient."),
+        help_text=_(
+            "Light-mode value. Accepts hex (#3b82f6, #fff), rgb()/rgba(), or any "
+            "CSS gradient (linear-gradient, radial-gradient, …). Solids "
+            "additionally emit a 50→950 shade scale and an -rgb companion for "
+            "Tailwind opacity utilities."
+        ),
     )
     color_value_dark = models.CharField(
-        max_length=500, blank=True, help_text=_("Optional dark-mode override.")
+        max_length=500,
+        blank=True,
+        help_text=_(
+            "Dark-mode value. Optional — leave blank to reuse the light value. "
+            "Useful when a colour that pops on white looks washed out on navy."
+        ),
     )
-    sort_order = models.PositiveIntegerField(default=0)
-    is_active = models.BooleanField(default=True)
+    sort_order = models.PositiveIntegerField(
+        default=0,
+        help_text=_("Lower numbers appear first in admin lists."),
+    )
+    is_active = models.BooleanField(
+        default=True,
+        help_text=_(
+            "Inactive colours are hidden from CSS output but kept in the admin "
+            "for reference. Useful for retiring a colour without losing history."
+        ),
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -369,11 +538,11 @@ class BrandColor(PreviewableMixin, models.Model):
         FieldPanel("theme"),
         FieldPanel("name"),
         MultiFieldPanel(
-            [FieldPanel("color_value")],
+            [ColorFieldPanel("color_value")],
             heading=_("Light mode"),
         ),
         MultiFieldPanel(
-            [FieldPanel("color_value_dark")],
+            [ColorFieldPanel("color_value_dark")],
             heading=_("Dark mode (optional)"),
             classname="collapsible collapsed",
         ),
@@ -411,4 +580,8 @@ class ThemedPageMixin(models.Model):
         context["active_theme"] = self.get_active_theme()
         return context
 
-    theme_panels = [FieldPanel("theme")]
+    # `permission` is a Wagtail FieldPanel arg — it hides the field for users
+    # lacking the permission. Standard Wagtail `add_theme`/`change_theme` perms
+    # govern *editing* the Theme record; `set_active_theme` separately governs
+    # *picking* which Theme applies to a page or site.
+    theme_panels = [FieldPanel("theme", permission="wagtail_themes.set_active_theme")]

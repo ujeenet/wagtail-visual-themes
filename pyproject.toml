@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "wagtail-visual-themes"
-version = "0.1.1"
+version = "0.2.0"
 description = "Reusable visual themes (colors, dark/light mode, radii, shadows, typography) for Wagtail pages."
 readme = "README.md"
 license = { file = "LICENSE" }

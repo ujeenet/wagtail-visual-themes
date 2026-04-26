@@ -171,6 +171,91 @@
         <div class="alert alert-error">Error — this is an error alert.</div>
         <div class="alert alert-info">Info — this is an info alert.</div>
     </section>
+
+    {% if theme.brand_colors.all %}
+    <section>
+        <h2>Brand color shades (50 → 950)</h2>
+        <p class="meta">Each <code>BrandColor</code> auto-emits a Tailwind-aligned scale derived from its base hex.</p>
+        {% for c in theme.brand_colors.all %}
+        <div style="margin-bottom: 16px;">
+            <p class="meta" style="margin: 0 0 4px;">{{ c.name }} · <code>--color-{{ c.slug }}-50</code> through <code>-950</code></p>
+            <div style="display: grid; grid-template-columns: repeat(11, 1fr); gap: 2px;">
+                {% for shade in shade_keys %}
+                    <div style="aspect-ratio: 1; background: var(--color-{{ c.slug }}-{{ shade }}); border-radius: var(--radius-sm); display: flex; align-items: flex-end; justify-content: center; padding: 4px; font-size: 10px; color: rgba(0,0,0,.6);">{{ shade }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </section>
+    {% endif %}
+
+    <section>
+        <h2>Typography scale</h2>
+        <div class="card" style="display: grid; gap: var(--space-2);">
+            <div style="font-size: var(--font-size-xs);">xs — Extra small (--font-size-xs)</div>
+            <div style="font-size: var(--font-size-sm);">sm — Small (--font-size-sm)</div>
+            <div style="font-size: var(--font-size-base);">base — Body text (--font-size-base)</div>
+            <div style="font-size: var(--font-size-lg);">lg — Lead (--font-size-lg)</div>
+            <div style="font-size: var(--font-size-xl);">xl — Subhead</div>
+            <div style="font-size: var(--font-size-2xl);">2xl — Heading 3</div>
+            <div style="font-size: var(--font-size-3xl);">3xl — Heading 2</div>
+            <div style="font-size: var(--font-size-4xl);">4xl — Display</div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Spacing scale</h2>
+        <p class="meta"><code>--space-0</code> through <code>--space-24</code> (Tailwind-aligned).</p>
+        <div style="display: flex; align-items: flex-end; gap: var(--space-2); padding: var(--space-4); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+            {% for tok in spacing_keys %}
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 32px;">
+                    <div style="width: var(--space-{{ tok }}); height: 60px; background: var(--color-info); border-radius: var(--radius-sm);"></div>
+                    <span style="font-size: 10px; color: var(--color-text-secondary); font-family: ui-monospace, monospace;">{{ tok }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section>
+        <h2>Borders, leading & tracking</h2>
+        <div class="grid" style="gap: var(--space-3);">
+            <div class="card" style="border-width: var(--border-1);">--border-1</div>
+            <div class="card" style="border-width: var(--border-2);">--border-2</div>
+            <div class="card" style="border-width: var(--border-4);">--border-4</div>
+            <div class="card" style="border-width: var(--border-8);">--border-8</div>
+        </div>
+        <div class="card" style="margin-top: var(--space-4);">
+            <p style="line-height: var(--leading-tight); margin: 0 0 var(--space-2);">
+                <strong>Leading tight</strong> — example body text laid out with <code>--leading-tight</code>.
+                Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor.
+            </p>
+            <p style="line-height: var(--leading-normal); margin: 0 0 var(--space-2);">
+                <strong>Leading normal</strong> — example body text with the default <code>--leading-normal</code>.
+                Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor.
+            </p>
+            <p style="line-height: var(--leading-relaxed); margin: 0;">
+                <strong>Leading relaxed</strong> — example body text with <code>--leading-relaxed</code>.
+                Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor.
+            </p>
+        </div>
+        <div class="row" style="margin-top: var(--space-3);">
+            <div class="card" style="letter-spacing: var(--tracking-tight);">tracking-tight</div>
+            <div class="card" style="letter-spacing: var(--tracking-normal);">tracking-normal</div>
+            <div class="card" style="letter-spacing: var(--tracking-wide); text-transform: uppercase;">tracking-wide</div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Transitions</h2>
+        <div class="row">
+            <button class="btn btn-primary" style="transition: transform var(--duration-fast) var(--ease-out);"
+                    onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">Fast (150ms)</button>
+            <button class="btn btn-primary" style="transition: transform var(--duration-normal) var(--ease-out);"
+                    onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">Normal (200ms)</button>
+            <button class="btn btn-primary" style="transition: transform var(--duration-slow) var(--ease-out);"
+                    onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">Slow (300ms)</button>
+        </div>
+    </section>
 </div>
 </body>
 </html>

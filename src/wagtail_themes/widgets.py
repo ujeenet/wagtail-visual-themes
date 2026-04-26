@@ -2,12 +2,53 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+import re
+from typing import Any
 
 from django import forms
 
-if TYPE_CHECKING:
-    pass
+_HEX_RE = re.compile(r"^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
+
+
+def _coerce_hex(value: Any) -> str:
+    """Return a #rrggbb string for the native color picker.
+
+    The text field is the source of truth — accepts hex / rgb() / gradient.
+    The picker is an aid: it shows #rrggbb when the value looks like a hex,
+    otherwise a neutral fallback so the picker still renders.
+    """
+    if not value:
+        return "#000000"
+    raw = str(value).strip()
+    match = _HEX_RE.match(raw)
+    if not match:
+        return "#000000"
+    digits = match.group(1)
+    if len(digits) == 3:
+        digits = "".join(c * 2 for c in digits)
+    return f"#{digits.lower()}"
+
+
+class ColorPickerWidget(forms.TextInput):
+    """A `<input type=text>` paired with a native `<input type=color>`.
+
+    The text input is the form field's actual value (so non-hex values like
+    `rgb()` or gradients are preserved). The swatch is a UX aid that updates
+    the text on pick, and follows the text on edit when it parses as hex.
+    """
+
+    template_name = "wagtail_themes/widgets/color_picker.html"
+
+    class Media:
+        css = {"all": ("wagtail_themes/css/color_picker.css",)}
+        js = ("wagtail_themes/js/color_picker.js",)
+
+    def get_context(
+        self, name: str, value: Any, attrs: dict[str, Any] | None
+    ) -> dict[str, Any]:
+        ctx = super().get_context(name, value, attrs)
+        ctx["widget"]["swatch_value"] = _coerce_hex(value)
+        return ctx
 
 
 class ColorPreviewSelect(forms.Select):

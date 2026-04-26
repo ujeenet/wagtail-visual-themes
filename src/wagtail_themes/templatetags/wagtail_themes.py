@@ -33,8 +33,26 @@ def _resolve_theme(context: dict[str, Any]):
     return None
 
 
+def _fallback_theme():
+    """An in-memory Theme using the model's baked-in field defaults.
+
+    Returned when no Theme is configured (no `is_default=True` row, no Site
+    setting, no page-level FK). Lets `{% theme_css %}` always emit a usable
+    set of variables so consumer CSS never breaks on a fresh install.
+    """
+    from ..models import Theme
+
+    return Theme(name="Default", slug="default")
+
+
 @register.simple_tag(takes_context=True)
-def theme_css(context, theme=None, include_style_tag=True, include_fonts=True):
+def theme_css(
+    context,
+    theme=None,
+    include_style_tag=True,
+    include_fonts=True,
+    fallback=True,
+):
     """Render the active theme's CSS variables as a `<style>` block.
 
     Usage:
@@ -44,12 +62,17 @@ def theme_css(context, theme=None, include_style_tag=True, include_fonts=True):
         </head>
 
     Pass `theme=...` to override resolution. Pass `include_style_tag=False`
-    to get just the CSS body (useful inside a custom <style> tag).
+    to get just the CSS body (useful inside a custom <style> tag). Pass
+    `fallback=False` to emit nothing when no Theme is configured (default
+    behaviour is to emit an in-memory Theme's defaults so styles never
+    silently break).
     """
     if theme is None:
         theme = _resolve_theme(context)
     if theme is None:
-        return ""
+        if not fallback:
+            return ""
+        theme = _fallback_theme()
 
     css_body = theme.emit_css()
     parts: list[str] = []
@@ -65,16 +88,23 @@ def theme_css(context, theme=None, include_style_tag=True, include_fonts=True):
 
 
 @register.simple_tag(takes_context=True)
-def theme_html_attrs(context, theme=None):
+def theme_html_attrs(context, theme=None, fallback=True):
     """Render the `data-theme="…"` attribute (and class) for `<html>`.
 
     Usage:
         <html {% theme_html_attrs %}>
+
+    Falls back to the in-memory default Theme so `data-theme="system"` is
+    always set — without it, the `[data-theme="dark"]` selectors emitted by
+    `{% theme_css %}` never apply and the switcher cannot toggle modes.
+    Pass `fallback=False` to opt out.
     """
     if theme is None:
         theme = _resolve_theme(context)
     if theme is None:
-        return ""
+        if not fallback:
+            return ""
+        theme = _fallback_theme()
     parts = [
         f'data-theme="{theme.default_mode}"',
         f'data-theme-name="{theme.slug}"',

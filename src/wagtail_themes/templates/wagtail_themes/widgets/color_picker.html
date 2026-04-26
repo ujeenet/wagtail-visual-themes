@@ -1,0 +1,14 @@
+<div class="wt-color-picker" data-wt-color-picker>
+    <input type="color"
+           class="wt-color-picker__swatch"
+           value="{{ widget.swatch_value }}"
+           aria-label="Color swatch"
+           tabindex="-1"
+           data-wt-color-swatch>
+    <input type="{{ widget.type }}"
+           name="{{ widget.name }}"
+           {% if widget.value != None %}value="{{ widget.value|stringformat:'s' }}"{% endif %}
+           class="wt-color-picker__text"
+           data-wt-color-text
+           {% include "django/forms/widgets/attrs.html" %}>
+</div>

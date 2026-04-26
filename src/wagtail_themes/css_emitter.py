@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .color_utils import is_gradient, parse_rgb_triplet
+from .color_utils import derive_shades, is_gradient, parse_rgb_triplet
 from .constants import FONT_SCALE_BASE_PX, FontScale
 
 if TYPE_CHECKING:
@@ -30,6 +30,10 @@ def _brand_color_lines(color: BrandColor, *, dark: bool) -> list[str]:
     contrast = color.contrast_color_dark if dark else color.contrast_color
     lines = _color_pair(f"color-{color.slug}", value)
     lines.append(f"  --color-{color.slug}-contrast: {contrast};")
+    # Tailwind-aligned 50→950 shades, derived via HSL lightness mixing.
+    # Gradients return an empty dict so we just skip them silently.
+    for shade, shade_value in derive_shades(value).items():
+        lines.extend(_color_pair(f"color-{color.slug}-{shade}", shade_value))
     return lines
 
 
@@ -81,13 +85,41 @@ def _surface_lines(theme: Theme, *, dark: bool) -> list[str]:
 
 def _typography_lines(theme: Theme) -> list[str]:
     base_px = FONT_SCALE_BASE_PX.get(FontScale(theme.font_scale), 16)
-    return [
+    # Tailwind-aligned modular scale, anchored to --font-size-base.
+    # Ratios are roughly 1.25x; xs and sm step down, lg through 4xl step up.
+    scale_ratios = {
+        "xs": 0.75,
+        "sm": 0.875,
+        "base": 1.0,
+        "lg": 1.125,
+        "xl": 1.25,
+        "2xl": 1.5,
+        "3xl": 1.875,
+        "4xl": 2.25,
+    }
+    lines = [
         f"  --font-heading: {theme.heading_font};",
         f"  --font-body: {theme.body_font};",
         f"  --font-weight-heading: {theme.heading_font_weight};",
         f"  --font-weight-body: {theme.body_font_weight};",
         f"  --font-size-base: {base_px}px;",
     ]
+    for name, ratio in scale_ratios.items():
+        # Round to 3 decimals to keep emitted CSS terse.
+        size_rem = round(ratio, 3)
+        lines.append(f"  --font-size-{name}: {size_rem}rem;")
+    # Line height + letter spacing (fixed scales — uniform across themes).
+    lines.extend(
+        [
+            "  --leading-tight: 1.25;",
+            "  --leading-normal: 1.5;",
+            "  --leading-relaxed: 1.75;",
+            "  --tracking-tight: -0.025em;",
+            "  --tracking-normal: 0em;",
+            "  --tracking-wide: 0.05em;",
+        ]
+    )
+    return lines
 
 
 def _radius_lines(theme: Theme) -> list[str]:
@@ -104,6 +136,80 @@ def _shadow_lines(theme: Theme) -> list[str]:
         f"  --shadow-sm: {theme.shadow_sm};",
         f"  --shadow-md: {theme.shadow_md};",
         f"  --shadow-lg: {theme.shadow_lg};",
+    ]
+
+
+# Spacing, border, z-index, transitions and state overlays use fixed
+# Tailwind-aligned values. They're not configurable per-theme — editors
+# don't typically tweak these, and a coherent scale is more important than
+# flexibility. Authors who need different values can override via their
+# own CSS after `{% theme_css %}`.
+
+_SPACING_SCALE = {
+    "0": "0",
+    "px": "1px",
+    "1": "0.25rem",
+    "2": "0.5rem",
+    "3": "0.75rem",
+    "4": "1rem",
+    "5": "1.25rem",
+    "6": "1.5rem",
+    "8": "2rem",
+    "10": "2.5rem",
+    "12": "3rem",
+    "16": "4rem",
+    "20": "5rem",
+    "24": "6rem",
+}
+
+
+def _spacing_lines(_theme: Theme) -> list[str]:
+    return [f"  --space-{k}: {v};" for k, v in _SPACING_SCALE.items()]
+
+
+def _border_width_lines(_theme: Theme) -> list[str]:
+    return [
+        "  --border-1: 1px;",
+        "  --border-2: 2px;",
+        "  --border-4: 4px;",
+        "  --border-8: 8px;",
+    ]
+
+
+def _z_index_lines(_theme: Theme) -> list[str]:
+    return [
+        "  --z-base: 0;",
+        "  --z-dropdown: 10;",
+        "  --z-sticky: 20;",
+        "  --z-fixed: 30;",
+        "  --z-overlay: 40;",
+        "  --z-modal: 50;",
+        "  --z-popover: 60;",
+        "  --z-tooltip: 70;",
+        "  --z-toast: 80;",
+    ]
+
+
+def _transition_lines(_theme: Theme) -> list[str]:
+    return [
+        "  --duration-fast: 150ms;",
+        "  --duration-normal: 200ms;",
+        "  --duration-slow: 300ms;",
+        "  --ease-out: cubic-bezier(0, 0, 0.2, 1);",
+        "  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);",
+    ]
+
+
+def _state_overlay_lines(_theme: Theme) -> list[str]:
+    """Opacity values used for hover / active / disabled state overlays.
+
+    Use them with `rgb(var(--color-foo-rgb) / var(--state-hover-overlay))` or
+    `opacity: var(--state-disabled-opacity)`.
+    """
+    return [
+        "  --state-hover-overlay: 0.08;",
+        "  --state-active-overlay: 0.16;",
+        "  --state-disabled-opacity: 0.5;",
     ]
 
 
@@ -132,6 +238,11 @@ def emit_theme_css(theme: Theme, selector_root: str = ":root") -> str:
     light_lines.extend(_typography_lines(theme))
     light_lines.extend(_radius_lines(theme))
     light_lines.extend(_shadow_lines(theme))
+    light_lines.extend(_spacing_lines(theme))
+    light_lines.extend(_border_width_lines(theme))
+    light_lines.extend(_z_index_lines(theme))
+    light_lines.extend(_transition_lines(theme))
+    light_lines.extend(_state_overlay_lines(theme))
 
     dark_lines: list[str] = []
     dark_lines.extend(_surface_lines(theme, dark=True))

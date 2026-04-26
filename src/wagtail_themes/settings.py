@@ -28,11 +28,13 @@ class ThemeSiteSetting(BaseSiteSetting):
         help_text=_("The theme to use for pages on this site by default."),
     )
 
-    panels = [FieldPanel("theme")]
+    panels = [
+        FieldPanel("theme", permission="wagtail_themes.set_active_theme"),
+    ]
 
     class Meta:
         verbose_name = _("Theme")
 
 
 if django_apps.is_installed("wagtail.contrib.settings"):
-    register_setting(ThemeSiteSetting, icon="palette")
+    register_setting(ThemeSiteSetting, icon="wagtail-themes-palette")

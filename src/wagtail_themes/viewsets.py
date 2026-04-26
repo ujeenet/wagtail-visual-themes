@@ -6,10 +6,12 @@ from wagtail.snippets.views.snippets import SnippetViewSet, SnippetViewSetGroup
 
 from .models import BrandColor, Theme
 
+PALETTE_ICON = "wagtail-themes-palette"
+
 
 class ThemeViewSet(SnippetViewSet):
     model = Theme
-    icon = "palette"
+    icon = PALETTE_ICON
     menu_label = "Themes"
     menu_name = "themes"
     add_to_admin_menu = False
@@ -33,7 +35,7 @@ class BrandColorViewSet(SnippetViewSet):
 
 class WagtailThemesViewSetGroup(SnippetViewSetGroup):
     items = [ThemeViewSet, BrandColorViewSet]
-    menu_icon = "palette"
+    menu_icon = PALETTE_ICON
     menu_label = "Themes"
     menu_name = "wagtail-themes"
     add_to_admin_menu = True

@@ -6,7 +6,19 @@ from typing import Any
 
 from wagtail.admin.panels import FieldPanel
 
-from .widgets import BrandColorChooserWidget
+from .widgets import BrandColorChooserWidget, ColorPickerWidget
+
+
+class ColorFieldPanel(FieldPanel):
+    """A `FieldPanel` that defaults to the package's `ColorPickerWidget`.
+
+    Use for CharField columns that hold a color value. Pass `widget=...`
+    yourself if you want to override.
+    """
+
+    def __init__(self, field_name: str, **kwargs: Any) -> None:
+        kwargs.setdefault("widget", ColorPickerWidget)
+        super().__init__(field_name, **kwargs)
 
 
 class BrandColorChooserPanel(FieldPanel):
