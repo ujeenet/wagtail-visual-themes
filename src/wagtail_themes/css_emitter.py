@@ -117,7 +117,12 @@ def emit_theme_css(theme: Theme, selector_root: str = ":root") -> str:
         [data-theme="system"] { /* same as dark */ }
       }
     """
-    brand_colors = list(theme.brand_colors.filter(is_active=True))
+    # Reverse relations require a saved instance. In the snippet preview
+    # Wagtail renders an in-memory instance built from form data before save,
+    # so guard the lookup and emit no brand-color variables in that case.
+    brand_colors = (
+        list(theme.brand_colors.filter(is_active=True)) if theme.pk else []
+    )
 
     light_lines: list[str] = []
     light_lines.extend(_surface_lines(theme, dark=False))

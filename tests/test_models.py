@@ -140,3 +140,15 @@ def test_emit_css_typography(theme: Theme) -> None:
     assert "--font-heading:" in css
     assert "--font-body:" in css
     assert "--font-size-base:" in css
+
+
+def test_emit_css_works_for_unsaved_theme_preview() -> None:
+    """Wagtail's snippet preview renders an unsaved instance built from form
+    data. Reverse relations (brand_colors) raise without a pk, so emit_css
+    must skip them rather than crash.
+    """
+    theme = Theme(name="Draft", slug="draft")  # not saved → pk is None
+    css = theme.emit_css()
+    assert ":root {" in css
+    assert "--color-bg:" in css
+    assert "--radius-md:" in css
