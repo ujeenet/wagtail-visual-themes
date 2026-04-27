@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] — 2026-04-26
+
+### Changed
+
+- **Minimum Wagtail bumped to 7.0.** The 0.1 generation supported Wagtail 6+, but the 0.2 migration imports `wagtail.models.preview` which is a 7.x-only path. Rather than ship a CI-fragile package, the supported floor is now Wagtail 7. Users on Wagtail 6.x should pin `wagtail-visual-themes<0.2`.
+- CI matrix simplified to Python 3.11/3.12/3.13 × Wagtail 7.x.
+
 ## [0.2.0] — 2026-04-26
 
 ### Added
