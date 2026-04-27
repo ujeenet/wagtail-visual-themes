@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "wagtail-visual-themes"
-version = "0.2.0"
+version = "0.2.1"
 description = "Reusable visual themes (colors, dark/light mode, radii, shadows, typography) for Wagtail pages."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -18,7 +18,6 @@ classifiers = [
     "Framework :: Django :: 5.0",
     "Framework :: Django :: 5.1",
     "Framework :: Wagtail",
-    "Framework :: Wagtail :: 6",
     "Framework :: Wagtail :: 7",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
@@ -32,7 +31,7 @@ classifiers = [
 ]
 dependencies = [
     "Django>=4.2",
-    "wagtail>=6.0",
+    "wagtail>=7.0",
 ]
 
 [project.optional-dependencies]
