@@ -34,6 +34,8 @@ Themes aren't pages and aren't published in the traditional sense. They're **sni
 
 ## Creating your first Theme
 
+> **Shortcut:** if a developer has run `python manage.py wagtail_themes_load_presets`, you'll already have five ready-made themes (Slate, Emerald, Sunset, Midnight, High Contrast) to start from. Open one, **duplicate** it (see [Common recipes](#common-recipes)), and tweak — rather than building from scratch.
+
 1. In the Wagtail admin sidebar, click **Themes**.
 2. Click **Add Theme** in the top-right.
 3. Fill in the **General** panel:
