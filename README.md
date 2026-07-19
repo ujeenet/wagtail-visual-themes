@@ -1,5 +1,11 @@
 # wagtail-visual-themes
 
+[![PyPI](https://img.shields.io/pypi/v/wagtail-visual-themes.svg)](https://pypi.org/project/wagtail-visual-themes/)
+[![Python versions](https://img.shields.io/pypi/pyversions/wagtail-visual-themes.svg)](https://pypi.org/project/wagtail-visual-themes/)
+[![Wagtail 7](https://img.shields.io/badge/wagtail-7.x-blue.svg)](https://wagtail.org/)
+[![CI](https://github.com/ujeenet/wagtail-visual-themes/actions/workflows/ci.yml/badge.svg)](https://github.com/ujeenet/wagtail-visual-themes/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/pypi/l/wagtail-visual-themes.svg)](./LICENSE)
+
 Reusable visual themes for [Wagtail](https://wagtail.org/) pages — colors, dark/light mode, typography, border radii and shadows. Themes are managed as snippets, rendered as a single `<style>` block of CSS variables, and resolved automatically per page.
 
 > ⚠️ Alpha. The API may change before 1.0.
@@ -1119,4 +1125,4 @@ Watch the *Actions* tab. On success, the package is on PyPI and a GitHub Release
 
 MIT — see [LICENSE](./LICENSE).
 
-[![Latest on Django Packages](https://img.shields.io/badge/PyPI-{{ package.slug}}-tags-8c3c26.svg)](https://djangopackages.org/packages/p/wagtail-visual-themes/)
+[![Listed on Django Packages](https://img.shields.io/badge/Django%20Packages-wagtail--visual--themes-8c3c26.svg)](https://djangopackages.org/packages/p/wagtail-visual-themes/)
