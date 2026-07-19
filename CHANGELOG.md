@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] — 2026-07-19
+
+### Added
+
+- **Starter theme presets** (#7). A management command `python manage.py wagtail_themes_load_presets` creates five professionally-tuned themes — **Slate**, **Emerald**, **Sunset**, **Midnight** and **High Contrast** — each with its own brand colors, so a fresh install isn't a blank form. Idempotent; pass `--reset` to restore a preset's colors/tokens after edits. Presets are never marked as the default theme, and their primary/secondary text and links are tuned to pass WCAG AA in both light and dark modes (enforced in the test suite). Also exposed as `wagtail_themes.presets.load_presets(*, reset=False)`.
+
 ## [0.4.0] — 2026-07-19
 
 ### Added

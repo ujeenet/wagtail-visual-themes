@@ -125,6 +125,25 @@ That's the whole minimum integration. Read on for the details.
 
 ---
 
+## Starter presets
+
+Don't want to start from a blank form? Load a set of professionally-tuned themes:
+
+```bash
+python manage.py wagtail_themes_load_presets
+```
+
+This creates five themes — **Slate**, **Emerald**, **Sunset**, **Midnight** and
+**High Contrast** — each with its own brand colors. The command is idempotent, so
+re-running it won't create duplicates; pass `--reset` to restore a preset's
+colors/tokens if you've edited them. Presets are never marked as the default theme
+(loading them won't touch your live site), and their body text and links are tuned
+to pass WCAG AA in both light and dark modes.
+
+Tweak a preset directly, or **duplicate** it (see [Duplicating a theme](#duplicating-a-theme)) to keep the original intact.
+
+---
+
 ## Concepts
 
 ### Theme
