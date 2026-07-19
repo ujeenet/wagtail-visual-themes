@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] — 2026-07-19
+
+### Fixed
+
+- **Theme preview no longer crashes for a new or copied (unsaved) theme.** The preview template read the `brand_colors` reverse relation directly, which raises on an instance without a primary key — so the whole preview 500'd while adding a theme, making it look like border/shadow/typography edits "didn't work" in the live preview. Brand colors are now passed through the preview context (guarded by the theme's pk), so the preview renders for unsaved themes and all token edits show live.
+
+### Changed
+
+- **Richer brand-color preview.** The preview now shows each brand color with its full 50→950 shade ramp inline (per color, mode-aware light/dark), with readable shade labels and a clear note for gradients (which have no shade scale). Replaces the previous separate, CSS-variable-driven shades section.
+
 ## [0.5.0] — 2026-07-19
 
 ### Added

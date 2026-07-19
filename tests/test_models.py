@@ -1,6 +1,7 @@
 """Tests for Theme + BrandColor models and CSS emission."""
 
 import pytest
+from django.template.loader import render_to_string
 
 from wagtail_themes.models import BrandColor, Theme
 
@@ -38,6 +39,68 @@ def test_contrast_report_dark_mode_uses_dark_values() -> None:
     by_label = {r["label"]: r for r in dark}
     # Dark primary text on dark bg should still pass.
     assert by_label["Text primary on background"]["passes"] is True
+
+
+def test_preview_brand_colors_empty_for_unsaved() -> None:
+    # Reading the reverse relation on an unsaved theme would raise; guard it.
+    assert Theme(name="X", slug="x").preview_brand_colors() == []
+
+
+def test_preview_context_does_not_crash_for_unsaved() -> None:
+    ctx = Theme(name="X", slug="x").get_preview_context(None, "light")
+    assert ctx["brand_colors"] == []
+    assert "contrast_report" in ctx
+
+
+def test_preview_template_renders_for_unsaved_theme() -> None:
+    """Regression: the preview must not 500 for a new/unsaved theme (#borders-shadows)."""
+    theme = Theme(name="New", slug="new")
+    ctx = theme.get_preview_context(None, "light")
+    html = render_to_string("wagtail_themes/preview/theme_preview.html", ctx)
+    # The whole preview renders (borders/shadows sections present), no brand section.
+    assert "Border radii" in html
+    assert "Shadows" in html
+    assert "Brand colors" not in html
+
+
+@pytest.mark.django_db
+def test_preview_brand_colors_lists_active_with_shades() -> None:
+    theme = Theme.objects.create(name="T", slug="t")
+    BrandColor.objects.create(theme=theme, name="Primary", color_value="#3b82f6")
+    BrandColor.objects.create(
+        theme=theme, name="Warm", color_value="linear-gradient(90deg, red, blue)"
+    )
+    BrandColor.objects.create(
+        theme=theme, name="Old", color_value="#111111", is_active=False
+    )
+
+    colors = {c["name"]: c for c in theme.preview_brand_colors()}
+    assert set(colors) == {"Primary", "Warm"}  # inactive excluded
+    assert len(colors["Primary"]["shades"]) == 11  # solid → full ramp
+    assert colors["Warm"]["shades"] == []  # gradient → no shades
+    assert colors["Warm"]["is_gradient"] is True
+
+
+@pytest.mark.django_db
+def test_preview_brand_colors_dark_mode_uses_dark_value() -> None:
+    theme = Theme.objects.create(name="T", slug="t")
+    BrandColor.objects.create(
+        theme=theme, name="Primary", color_value="#3b82f6", color_value_dark="#1e3a8a"
+    )
+    light = theme.preview_brand_colors(dark=False)[0]
+    dark = theme.preview_brand_colors(dark=True)[0]
+    assert light["value"] == "#3b82f6"
+    assert dark["value"] == "#1e3a8a"
+
+
+@pytest.mark.django_db
+def test_preview_template_renders_brand_shades_for_saved_theme() -> None:
+    theme = Theme.objects.create(name="T", slug="t")
+    BrandColor.objects.create(theme=theme, name="Primary", color_value="rebeccapurple")
+    ctx = theme.get_preview_context(None, "light")
+    html = render_to_string("wagtail_themes/preview/theme_preview.html", ctx)
+    assert "Brand colors" in html
+    assert "--color-primary" in html
 
 
 def test_contrast_report_handles_gradient_link() -> None:

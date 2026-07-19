@@ -15,6 +15,7 @@ from wagtail.models import PreviewableMixin
 from .color_utils import (
     best_contrast,
     contrast_ratio,
+    derive_shades,
     is_gradient,
     parse_rgb_triplet,
     wcag_grade,
@@ -318,15 +319,44 @@ class Theme(PreviewableMixin, models.Model):
     def get_preview_template(self, request: Any, mode_name: str) -> str:
         return "wagtail_themes/preview/theme_preview.html"
 
+    def preview_brand_colors(self, *, dark: bool = False) -> list[dict[str, Any]]:
+        """Brand colors for the preview, with per-color shade ramps for one mode.
+
+        Returns an empty list for an unsaved theme (the reverse relation needs a
+        saved instance — reading it on an unsaved one raises). Each entry carries
+        the mode-appropriate value, its contrast foreground, and a 50→950 shade
+        list (empty for gradients) so the preview can render a full ramp without
+        touching the database or the emitted CSS variables.
+        """
+        if not self.pk:
+            return []
+        colors: list[dict[str, Any]] = []
+        for bc in self.brand_colors.filter(is_active=True):
+            value = bc.effective_dark_value if dark else bc.color_value
+            shades = derive_shades(value)
+            colors.append(
+                {
+                    "name": bc.name,
+                    "slug": bc.slug,
+                    "value": value,
+                    "css_var_name": bc.css_var_name,
+                    "is_gradient": is_gradient(value),
+                    "contrast": bc.contrast_color_dark if dark else bc.contrast_color,
+                    "shades": [
+                        {"key": key, "value": hex_value, "label": best_contrast(hex_value)}
+                        for key, hex_value in shades.items()
+                    ],
+                }
+            )
+        return colors
+
     def get_preview_context(self, request: Any, mode_name: str) -> dict[str, Any]:
+        dark = mode_name == "dark"
         return {
             "theme": self,
             "preview_mode": mode_name or "light",
-            "contrast_report": self.contrast_report(dark=mode_name == "dark"),
-            "shade_keys": [
-                "50", "100", "200", "300", "400", "500",
-                "600", "700", "800", "900", "950",
-            ],
+            "contrast_report": self.contrast_report(dark=dark),
+            "brand_colors": self.preview_brand_colors(dark=dark),
             "spacing_keys": [
                 "0", "px", "1", "2", "3", "4", "5", "6",
                 "8", "10", "12", "16", "20", "24",
