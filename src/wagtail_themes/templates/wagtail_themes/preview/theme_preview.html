@@ -99,6 +99,30 @@
         .badge-aa   { background: #2563eb; }
         .badge-fail { background: #dc2626; }
         .badge-na   { background: #64748b; }
+        .brand {
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: 14px 16px; margin-bottom: 14px;
+            background: var(--color-surface);
+        }
+        .brand-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .brand-chip {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 56px; height: 40px; border-radius: var(--radius-sm);
+            border: 1px solid var(--color-border);
+            font-weight: 700; font-size: 13px;
+        }
+        .brand-head .nm { font-size: 15px; font-weight: 600; }
+        .brand-head .lbl {
+            font-family: ui-monospace, monospace; font-size: 12px;
+            color: var(--color-text-secondary); margin-left: auto;
+        }
+        .shade-row { display: grid; grid-template-columns: repeat(11, 1fr); gap: 2px; }
+        .shade {
+            aspect-ratio: 1 / 1.1; border-radius: 3px;
+            display: flex; align-items: flex-end; justify-content: center;
+            padding-bottom: 3px; font-size: 9px; font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -121,18 +145,28 @@
         </div>
     </section>
 
-    {% if theme.brand_colors.all %}
+    {% if brand_colors %}
     <section>
         <h2>Brand colors</h2>
-        <div class="grid">
-            {% for c in theme.brand_colors.all %}
-            <div class="swatch">
-                <div class="dot" style="background: {{ c.color_value }};"></div>
+        <p class="meta">Each emits <code>--color-&lt;name&gt;</code>, a <code>-contrast</code> foreground, an <code>-rgb</code> companion (solids), and a 50→950 shade scale. Shown for <code>{{ preview_mode|default:'light' }}</code> mode.</p>
+        {% for c in brand_colors %}
+        <div class="brand">
+            <div class="brand-head">
+                <span class="brand-chip" style="background: {{ c.value }}; color: {{ c.contrast }};">Aa</span>
                 <span class="nm">{{ c.name }}</span>
                 <span class="lbl">{{ c.css_var_name }}</span>
             </div>
-            {% endfor %}
+            {% if c.shades %}
+            <div class="shade-row">
+                {% for s in c.shades %}
+                <div class="shade" style="background: {{ s.value }}; color: {{ s.label }};" title="--color-{{ c.slug }}-{{ s.key }}: {{ s.value }}">{{ s.key }}</div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="meta" style="margin: 0;">Gradient — no shade scale or <code>-rgb</code> companion.</p>
+            {% endif %}
         </div>
+        {% endfor %}
     </section>
     {% endif %}
 
@@ -214,23 +248,6 @@
         <div class="alert alert-error">Error — this is an error alert.</div>
         <div class="alert alert-info">Info — this is an info alert.</div>
     </section>
-
-    {% if theme.brand_colors.all %}
-    <section>
-        <h2>Brand color shades (50 → 950)</h2>
-        <p class="meta">Each <code>BrandColor</code> auto-emits a Tailwind-aligned scale derived from its base hex.</p>
-        {% for c in theme.brand_colors.all %}
-        <div style="margin-bottom: 16px;">
-            <p class="meta" style="margin: 0 0 4px;">{{ c.name }} · <code>--color-{{ c.slug }}-50</code> through <code>-950</code></p>
-            <div style="display: grid; grid-template-columns: repeat(11, 1fr); gap: 2px;">
-                {% for shade in shade_keys %}
-                    <div style="aspect-ratio: 1; background: var(--color-{{ c.slug }}-{{ shade }}); border-radius: var(--radius-sm); display: flex; align-items: flex-end; justify-content: center; padding: 4px; font-size: 10px; color: rgba(0,0,0,.6);">{{ shade }}</div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endfor %}
-    </section>
-    {% endif %}
 
     <section>
         <h2>Typography scale</h2>
