@@ -205,6 +205,12 @@ Create a second Theme called *Holiday*. Don't set `is_default`. Either:
 - Have a developer wire it to a specific page or site, or
 - Ask them to swap `is_default` from *Default* to *Holiday* during the season.
 
+**Tip:** rather than starting *Holiday* from scratch, **duplicate** your existing theme (see below) so it keeps your fonts, radii and brand colors — then just tweak the festive bits.
+
+### "I want to duplicate a theme"
+
+In *Snippets → Themes*, open the *⋯ More* menu on the theme's row and click **Copy**. You'll land on a pre-filled form named "<theme> (copy)" with all colors, fonts, radii and brand colors already carried over — including the brand-color list. Rename it, adjust whatever you like, and save. The copy is never the default, so it won't affect your live site until someone assigns it.
+
 Both are cheap operations.
 
 ---
