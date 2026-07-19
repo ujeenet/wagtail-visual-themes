@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] — 2026-07-19
+
+### Added
+
+- **Duplicate a theme** (#4). Themes can now be cloned — including all their brand colors — instead of rebuilt from scratch:
+  - A **Copy** action in the Themes snippet listing pre-fills the add form with a ready-to-save duplicate (unique name/slug, never the default) and copies the source theme's brand colors on save.
+  - A management command `python manage.py wagtail_themes_clone_theme <source-slug> [--slug NEW] [--name NAME]` for scripting and seeding environments.
+  - A reusable `wagtail_themes.services.clone_theme(source, *, name=None, slug=None)` API. Repeated clones get de-duplicated `-copy`, `-copy-2`, … names/slugs; inactive brand colors are preserved.
+
 ## [0.3.0] — 2026-07-19
 
 ### Added

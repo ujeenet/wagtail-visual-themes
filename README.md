@@ -645,6 +645,33 @@ The panel reads the theme from `instance.theme` (or, if the model *is* a Theme, 
 
 ---
 
+## Duplicating a theme
+
+To spin up a new theme from an existing one, use the **Copy** action in the Themes
+listing (in each row's *⋯ More* menu). It opens the add form pre-filled with a
+ready-to-save duplicate — a unique name/slug, never the default — and copies the
+source theme's brand colors when you save.
+
+From the command line (handy for seeding staging/prod):
+
+```bash
+python manage.py wagtail_themes_clone_theme default --slug default-copy
+# --slug and --name are optional; both default to "<source> (copy)" / "<slug>-copy"
+```
+
+Or in Python:
+
+```python
+from wagtail_themes.models import Theme
+from wagtail_themes.services import clone_theme
+
+clone = clone_theme(Theme.objects.get(slug="default"), name="Marketing")
+```
+
+All token fields are copied; brand colors (active and inactive) are deep-copied onto
+the new theme. Repeated clones get de-duplicated `-copy`, `-copy-2`, … slugs, and the
+copy is never the default.
+
 ## Theme resolution rules
 
 When `{% theme_css %}` runs, it asks the resolver: "which theme should I render?" The decision tree:
