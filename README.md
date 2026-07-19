@@ -36,7 +36,7 @@ Reusable visual themes for [Wagtail](https://wagtail.org/) pages — colors, dar
 
 | | |
 |---|---|
-| **Editors** | Create one or more `Theme` snippets in the Wagtail admin. Each theme has its own colors (light + dark), typography, radii, shadows, and a list of named brand colors. Live preview shows them all. |
+| **Editors** | Create one or more `Theme` snippets in the Wagtail admin. Each theme has its own colors (light + dark), typography, radii, shadows, and a list of named brand colors. Live preview shows them all — including **WCAG contrast badges** (AAA / AA / Fail) for key text pairs, so accessibility problems are caught before publish. |
 | **Developers** | Drop `{% theme_css %}` in your `<head>` and consume `var(--color-bg)`, `var(--color-primary)`, `var(--radius-md)`, `var(--shadow-md)` in plain CSS, Tailwind, or anywhere else. |
 | **Visitors** | Toggle between light, dark and system (OS) modes. The choice survives page reloads. No flash of wrong theme on first paint. |
 
@@ -607,7 +607,9 @@ Names must be unique within a Theme.
 
 ### Solid colors vs gradients
 
-Both work. Solids accept hex (`#3b82f6`, `#fff`), `rgb()`, `rgba()`. Gradients accept any CSS gradient (`linear-gradient(...)`, `radial-gradient(...)`, `conic-gradient(...)`).
+Both work. Solids accept hex (`#3b82f6`, `#fff`), `rgb()`/`rgba()`, `hsl()`/`hsla()` (e.g. `hsl(217 91% 60%)`), and CSS named colors (`white`, `rebeccapurple`, …). Gradients accept any CSS gradient (`linear-gradient(...)`, `radial-gradient(...)`, `conic-gradient(...)`).
+
+Any solid value — whatever the notation — gets the `-rgb` companion and the 50→950 shade scale. Notations the parser doesn't recognise (e.g. `oklch()`) still render as-is via `--color-<slug>`, but without the `-rgb`/shade companions.
 
 | Color type | Gets `-rgb` companion? | Gets `-contrast` companion? |
 |---|---|---|
@@ -807,6 +809,20 @@ print(theme.emit_css())
 ### `Theme.get_default() -> Theme | None`
 
 Returns the row with `is_default=True`, or `None`.
+
+### `Theme.contrast_report(*, dark=False) -> list[dict]`
+
+Grades key text/background pairs against WCAG 2.1 for one mode. Each entry has
+`label`, `fg`, `bg`, `ratio` (or `None` if a value can't be parsed), `grade`
+(`"AAA"` / `"AA"` / `"Fail"` / `"n/a"`), and `passes` (True at ≥ 4.5:1). Powers the
+contrast badges in the theme preview; also handy in tests or custom admin views.
+
+```python
+from wagtail_themes.color_utils import contrast_ratio, wcag_grade
+
+contrast_ratio("#0f172a", "#ffffff")   # -> 17.85
+wcag_grade(17.85)                       # -> "AAA"
+```
 
 ### `BrandColor.css_var_name -> str`
 

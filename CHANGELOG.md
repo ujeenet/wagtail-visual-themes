@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] — 2026-07-19
+
+### Added
+
+- **WCAG contrast feedback in the theme preview** (#5). The snippet preview now grades key text/background pairs (primary/secondary/muted text on background and surface, plus link on background) against WCAG 2.1 and shows an **AAA / AA / Fail** badge with the exact contrast ratio, per mode (light/dark). New public helpers `color_utils.contrast_ratio(fg, bg)` and `color_utils.wcag_grade(ratio, *, large_text=False)`, and `Theme.contrast_report(*, dark=False)`.
+
+### Fixed
+
+- **Color parsing now understands `hsl()`/`hsla()` and CSS named colors** (#6). Previously `color_utils.parse_rgb_triplet` only handled hex and `rgb()/rgba()`; values like `hsl(217 91% 60%)`, `white`, or `rebeccapurple` silently produced **no `-rgb` companion and no 50→950 shade scale**, quietly breaking Tailwind opacity utilities and shades. These formats now parse to a proper RGB triplet and get the full treatment. Unsupported inputs (e.g. `oklch()`) still degrade gracefully to no `-rgb`/shades rather than erroring.
+
 ## [0.2.1] — 2026-04-26
 
 ### Changed
