@@ -10,6 +10,45 @@ def theme(db) -> Theme:
     return Theme.objects.create(name="Default", slug="default")
 
 
+def test_contrast_report_grades_default_pairs() -> None:
+    """contrast_report works on an unsaved Theme (no DB) and grades each pair."""
+    t = Theme(name="X", slug="x")  # model field defaults
+    report = t.contrast_report(dark=False)
+
+    assert [r["label"] for r in report] == [
+        "Text primary on background",
+        "Text primary on surface",
+        "Text secondary on background",
+        "Text secondary on surface",
+        "Text muted on background",
+        "Link on background",
+    ]
+    by_label = {r["label"]: r for r in report}
+    # Default primary text (#0f172a) on white is very high contrast.
+    assert by_label["Text primary on background"]["grade"] == "AAA"
+    assert by_label["Text primary on background"]["passes"] is True
+    # Default muted text (#94a3b8) on white fails AA — the whole point of the badge.
+    assert by_label["Text muted on background"]["grade"] == "Fail"
+    assert by_label["Text muted on background"]["passes"] is False
+
+
+def test_contrast_report_dark_mode_uses_dark_values() -> None:
+    t = Theme(name="X", slug="x")
+    dark = t.contrast_report(dark=True)
+    by_label = {r["label"]: r for r in dark}
+    # Dark primary text on dark bg should still pass.
+    assert by_label["Text primary on background"]["passes"] is True
+
+
+def test_contrast_report_handles_gradient_link() -> None:
+    t = Theme(name="X", slug="x", link_color="linear-gradient(90deg, red, blue)")
+    by_label = {r["label"]: r for r in t.contrast_report()}
+    link = by_label["Link on background"]
+    assert link["ratio"] is None
+    assert link["grade"] == "n/a"
+    assert link["passes"] is False
+
+
 @pytest.mark.django_db
 def test_theme_str() -> None:
     t = Theme.objects.create(name="Marketing", slug="marketing")

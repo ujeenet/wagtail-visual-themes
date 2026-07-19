@@ -12,7 +12,13 @@ from django.utils.translation import gettext_lazy as _
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail.models import PreviewableMixin
 
-from .color_utils import best_contrast, is_gradient, parse_rgb_triplet
+from .color_utils import (
+    best_contrast,
+    contrast_ratio,
+    is_gradient,
+    parse_rgb_triplet,
+    wcag_grade,
+)
 from .constants import (
     DEFAULT_BODY_FONT,
     DEFAULT_HEADING_FONT,
@@ -265,6 +271,50 @@ class Theme(PreviewableMixin, models.Model):
 
         return emit_theme_css(self, selector_root=selector_root)
 
+    def contrast_report(self, *, dark: bool = False) -> list[dict[str, Any]]:
+        """Grade key text/background pairs against WCAG AA/AAA for one mode.
+
+        Returns a list of dicts (label, fg, bg, ratio, grade, passes) suitable
+        for rendering accessibility badges in the theme preview. `ratio` is None
+        and `grade` is "n/a" when a colour can't be parsed (e.g. a gradient).
+        """
+        if dark:
+            bg, surface = self.dark_bg, self.dark_surface
+            primary = self.dark_text_primary
+            secondary = self.dark_text_secondary
+            muted = self.dark_text_muted
+            link = self.link_color_dark or self.link_color
+        else:
+            bg, surface = self.light_bg, self.light_surface
+            primary = self.light_text_primary
+            secondary = self.light_text_secondary
+            muted = self.light_text_muted
+            link = self.link_color
+
+        pairs = [
+            ("Text primary on background", primary, bg),
+            ("Text primary on surface", primary, surface),
+            ("Text secondary on background", secondary, bg),
+            ("Text secondary on surface", secondary, surface),
+            ("Text muted on background", muted, bg),
+            ("Link on background", link, bg),
+        ]
+
+        report: list[dict[str, Any]] = []
+        for label, fg, background in pairs:
+            ratio = contrast_ratio(fg, background)
+            report.append(
+                {
+                    "label": label,
+                    "fg": fg,
+                    "bg": background,
+                    "ratio": round(ratio, 2) if ratio is not None else None,
+                    "grade": wcag_grade(ratio),
+                    "passes": ratio is not None and ratio >= 4.5,
+                }
+            )
+        return report
+
     def get_preview_template(self, request: Any, mode_name: str) -> str:
         return "wagtail_themes/preview/theme_preview.html"
 
@@ -272,6 +322,7 @@ class Theme(PreviewableMixin, models.Model):
         return {
             "theme": self,
             "preview_mode": mode_name or "light",
+            "contrast_report": self.contrast_report(dark=mode_name == "dark"),
             "shade_keys": [
                 "50", "100", "200", "300", "400", "500",
                 "600", "700", "800", "900", "950",

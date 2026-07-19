@@ -62,7 +62,7 @@ Brand colors are *named* colors that belong to a Theme — typically Primary, Se
 4. Give it a **Name** — short and CSS-friendly. Use clean, role-based names:
    - ✅ *Primary*, *Secondary*, *Accent*, *Aurora*, *Sunset*
    - ❌ *MyClient_BrandColor_Final_v3*, *#3b82f6*
-5. Pick a **Light-mode value**. Click the swatch to open a colour picker, or paste a hex / rgb / gradient.
+5. Pick a **Light-mode value**. Click the swatch to open a colour picker, or paste a value: hex (`#3b82f6`), `rgb()`/`rgba()`, `hsl()`/`hsla()`, a CSS colour name (`rebeccapurple`), or a gradient. Solid colours (anything that isn't a gradient) automatically get the `-rgb` companion and the full shade scale.
 6. Optionally, set a **Dark-mode value**. Most colours look fine on either background, but vivid colours sometimes need a slightly desaturated version for dark mode. Leave blank to reuse the light value.
 7. Save.
 
@@ -165,7 +165,8 @@ Defined per-Theme as separate records. Use them for *brand-specific* surfaces �
 
 Color is one of the easiest accessibility traps to fall into. A few rules:
 
-- **Body text vs. background must hit 7:1 contrast** for AAA, 4.5:1 for AA. Tools like [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/) will tell you. Pure-white text on pure-black is overkill but always passes.
+- **Read the contrast badges in the preview.** The Theme preview has an **Accessibility — contrast** section that grades your key text pairs (primary/secondary/muted text on background and surface, plus links) and shows the exact ratio with an **AAA**, **AA**, or **Fail** badge. Switch the preview between light and dark mode — each mode is graded on its own colours. A red **Fail** badge means that text is too faint to read; darken it (or lighten the background) until it reaches at least **AA**.
+- **Body text vs. background must hit 7:1 contrast** for AAA, 4.5:1 for AA. The preview badges compute this for you; [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/) is handy for one-off checks. Pure-white text on pure-black is overkill but always passes.
 - **Focus ring must be clearly visible** against both `--color-bg` and the element it surrounds. A faint blue against light grey is invisible. Brand colors often *don't* make good focus rings unless they're high-contrast.
 - **Don't rely on colour alone.** A red border on an invalid form field is fine; a red border *and* an icon *and* a text message is better — colourblind users still get the signal.
 - **Test in both modes.** A combination that's fine in light mode can fail in dark.

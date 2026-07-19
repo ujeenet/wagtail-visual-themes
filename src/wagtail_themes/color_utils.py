@@ -4,32 +4,45 @@ from __future__ import annotations
 
 import re
 
+from .css_named_colors import CSS_NAMED_COLORS
+
 _HEX_RE = re.compile(r"^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$")
 _RGB_RE = re.compile(
     r"^rgba?\(\s*(\d+)\s*,?\s*(\d+)\s*,?\s*(\d+)(?:\s*[,/]\s*([\d.]+%?))?\s*\)$"
 )
+# hsl(210 40% 96%) / hsl(210, 40%, 96%) / hsla(210, 40%, 96%, 0.5). The hue may
+# carry a `deg` suffix; the optional 4th slot is alpha (comma- or slash-separated).
+_HSL_RE = re.compile(
+    r"^hsla?\(\s*([\d.]+)(?:deg)?\s*[,\s]\s*([\d.]+)%\s*[,\s]\s*([\d.]+)%"
+    r"(?:\s*[,/]\s*[\d.]+%?)?\s*\)$",
+    re.IGNORECASE,
+)
 
 
 def parse_rgb_triplet(value: str) -> tuple[int, int, int] | None:
-    """Parse a hex or rgb() string into an (r, g, b) triplet.
+    """Parse a color string into an (r, g, b) triplet.
 
-    Returns None for gradients or values we can't parse — those will fall back
-    to direct CSS output rather than RGB-triplet variables.
+    Understands hex, ``rgb()``/``rgba()``, ``hsl()``/``hsla()`` and CSS named
+    colors (``white``, ``rebeccapurple``, …). Returns None for gradients or
+    values we can't parse — those fall back to direct CSS output rather than
+    RGB-triplet variables (so they get no ``-rgb`` companion and no shades).
     """
     if not value:
         return None
     value = value.strip()
+
+    # Named colors resolve to their hex equivalent, then fall through to hex.
+    named = CSS_NAMED_COLORS.get(value.lower())
+    if named is not None:
+        value = named
 
     hex_match = _HEX_RE.match(value)
     if hex_match:
         digits = hex_match.group(1)
         if len(digits) == 3:
             r, g, b = (int(c * 2, 16) for c in digits)
-        elif len(digits) == 8:
-            r = int(digits[0:2], 16)
-            g = int(digits[2:4], 16)
-            b = int(digits[4:6], 16)
         else:
+            # 6- and 8-digit both start with RRGGBB; any alpha byte is ignored.
             r = int(digits[0:2], 16)
             g = int(digits[2:4], 16)
             b = int(digits[4:6], 16)
@@ -42,6 +55,13 @@ def parse_rgb_triplet(value: str) -> tuple[int, int, int] | None:
             int(rgb_match.group(2)),
             int(rgb_match.group(3)),
         )
+
+    hsl_match = _HSL_RE.match(value)
+    if hsl_match:
+        h = float(hsl_match.group(1))
+        s = float(hsl_match.group(2)) / 100.0
+        light = float(hsl_match.group(3)) / 100.0
+        return hsl_to_rgb(h, s, light)
 
     return None
 
@@ -69,6 +89,41 @@ def best_contrast(value: str) -> str:
     if rgb is None:
         return "#ffffff"
     return "#000000" if relative_luminance(rgb) > 0.5 else "#ffffff"
+
+
+def contrast_ratio(foreground: str, background: str) -> float | None:
+    """WCAG 2.x contrast ratio between two solid colors, or None if unparseable.
+
+    The ratio is `(L1 + 0.05) / (L2 + 0.05)` where L1/L2 are the lighter/darker
+    relative luminances. Ranges from 1 (identical) to 21 (black on white).
+    """
+    fg = parse_rgb_triplet(foreground)
+    bg = parse_rgb_triplet(background)
+    if fg is None or bg is None:
+        return None
+    l1 = relative_luminance(fg)
+    l2 = relative_luminance(bg)
+    lighter, darker = max(l1, l2), min(l1, l2)
+    return (lighter + 0.05) / (darker + 0.05)
+
+
+def wcag_grade(ratio: float | None, *, large_text: bool = False) -> str:
+    """Grade a contrast ratio: 'AAA', 'AA', 'Fail', or 'n/a'.
+
+    Thresholds follow WCAG 2.1 for text: normal text needs 4.5:1 (AA) / 7:1
+    (AAA); large text (≥18pt, or ≥14pt bold) needs 3:1 (AA) / 4.5:1 (AAA).
+    """
+    if ratio is None:
+        return "n/a"
+    if large_text:
+        aaa, aa = 4.5, 3.0
+    else:
+        aaa, aa = 7.0, 4.5
+    if ratio >= aaa:
+        return "AAA"
+    if ratio >= aa:
+        return "AA"
+    return "Fail"
 
 
 def rgb_to_hsl(r: int, g: int, b: int) -> tuple[float, float, float]:

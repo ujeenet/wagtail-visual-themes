@@ -76,6 +76,29 @@
             padding-bottom: 6px; margin-bottom: 16px;
         }
         .meta { color: var(--color-text-secondary); }
+        .contrast-list { display: grid; gap: 8px; }
+        .contrast-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 8px 12px; border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
+        }
+        .contrast-sample {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 64px; height: 40px; padding: 0 10px;
+            border-radius: var(--radius-sm); border: 1px solid var(--color-border);
+            font-size: 13px; font-weight: 600; white-space: nowrap;
+        }
+        .contrast-label { flex: 1; font-size: 14px; }
+        .contrast-ratio { font-family: ui-monospace, monospace; font-size: 13px; }
+        .badge {
+            display: inline-block; padding: 2px 8px; border-radius: 999px;
+            font-size: 11px; font-weight: 700; letter-spacing: 0.02em;
+            color: #fff; min-width: 34px; text-align: center;
+        }
+        .badge-aaa  { background: #15803d; }
+        .badge-aa   { background: #2563eb; }
+        .badge-fail { background: #dc2626; }
+        .badge-na   { background: #64748b; }
     </style>
 </head>
 <body>
@@ -124,6 +147,26 @@
             <div class="swatch"><div class="dot" style="background: var(--color-focus-ring);"></div><span class="nm">Focus ring</span></div>
         </div>
     </section>
+
+    {% if contrast_report %}
+    <section>
+        <h2>Accessibility — contrast</h2>
+        <p class="meta">WCAG 2.1 contrast ratios for key text pairs in <code>{{ preview_mode|default:'light' }}</code> mode. Normal text should reach <strong>AA (4.5:1)</strong>; <strong>AAA</strong> is 7:1.</p>
+        <div class="contrast-list">
+            {% for c in contrast_report %}
+            <div class="contrast-row">
+                <span class="contrast-sample" style="background: {{ c.bg }}; color: {{ c.fg }};">Aa</span>
+                <span class="contrast-label">{{ c.label }}</span>
+                <span class="contrast-ratio">{% if c.ratio %}{{ c.ratio }}:1{% else %}—{% endif %}</span>
+                {% if c.grade == 'AAA' %}<span class="badge badge-aaa">AAA</span>
+                {% elif c.grade == 'AA' %}<span class="badge badge-aa">AA</span>
+                {% elif c.grade == 'Fail' %}<span class="badge badge-fail">Fail</span>
+                {% else %}<span class="badge badge-na">n/a</span>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
 
     <section>
         <h2>Typography</h2>
