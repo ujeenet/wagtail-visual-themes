@@ -190,14 +190,44 @@ def _z_index_lines(_theme: Theme) -> list[str]:
     ]
 
 
+# Motion durations, kept in one place so the `prefers-reduced-motion` override
+# below can neutralise exactly the tokens we emit.
+DURATION_TOKENS = {
+    "duration-fast": "150ms",
+    "duration-normal": "200ms",
+    "duration-slow": "300ms",
+}
+
+# Not 0s: a zero duration can skip `transitionend`/`animationend` events that
+# scripts rely on, so use a duration that is imperceptible but still fires.
+REDUCED_MOTION_DURATION = "0.01ms"
+
+
 def _transition_lines(_theme: Theme) -> list[str]:
-    return [
-        "  --duration-fast: 150ms;",
-        "  --duration-normal: 200ms;",
-        "  --duration-slow: 300ms;",
-        "  --ease-out: cubic-bezier(0, 0, 0.2, 1);",
-        "  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);",
-    ]
+    lines = [f"  --{name}: {value};" for name, value in DURATION_TOKENS.items()]
+    lines.extend(
+        [
+            "  --ease-out: cubic-bezier(0, 0, 0.2, 1);",
+            "  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);",
+        ]
+    )
+    return lines
+
+
+def _reduced_motion_lines(selector_root: str) -> list[str]:
+    """Neutralise the duration tokens for visitors who ask for less motion.
+
+    Emitted against the same selector that declared them, so it wins on source
+    order rather than specificity. Consumers driving their transitions off
+    `var(--duration-*)` get reduced motion for free.
+    """
+    out = ["@media (prefers-reduced-motion: reduce) {", f"  {selector_root} {{"]
+    out.extend(
+        f"    --{name}: {REDUCED_MOTION_DURATION};" for name in DURATION_TOKENS
+    )
+    out.append("  }")
+    out.append("}")
+    return out
 
 
 def _state_overlay_lines(_theme: Theme) -> list[str]:
@@ -221,6 +251,9 @@ def emit_theme_css(theme: Theme, selector_root: str = ":root") -> str:
       [data-theme="dark"] { /* dark overrides */ }
       @media (prefers-color-scheme: dark) {
         [data-theme="system"] { /* same as dark */ }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        :root { /* duration tokens neutralised */ }
       }
     """
     # Reverse relations require a saved instance. In the snippet preview
@@ -264,5 +297,7 @@ def emit_theme_css(theme: Theme, selector_root: str = ":root") -> str:
     out.extend(f"  {line}" for line in dark_lines)
     out.append("  }")
     out.append("}")
+
+    out.extend(_reduced_motion_lines(selector_root))
 
     return "\n".join(out)

@@ -84,6 +84,34 @@ def test_transitions(theme: Theme):
 
 
 @pytest.mark.django_db
+def test_reduced_motion_neutralises_durations(theme: Theme):
+    css = theme.emit_css()
+    assert "@media (prefers-reduced-motion: reduce) {" in css
+    block = css.split("@media (prefers-reduced-motion: reduce) {")[1]
+    for name in ("duration-fast", "duration-normal", "duration-slow"):
+        assert f"--{name}: 0.01ms;" in block
+    # Easing curves are shapes, not motion — they stay untouched.
+    assert "--ease-out" not in block
+
+
+@pytest.mark.django_db
+def test_reduced_motion_targets_custom_selector_root(theme: Theme):
+    css = theme.emit_css(selector_root=".themed")
+    tail = css.split("@media (prefers-reduced-motion: reduce) {")[1]
+    # Must override on the same selector that declared the tokens, or the
+    # original declaration on that selector would still win.
+    assert tail.lstrip().startswith(".themed {")
+
+
+@pytest.mark.django_db
+def test_reduced_motion_block_comes_after_declarations(theme: Theme):
+    css = theme.emit_css()
+    assert css.index("--duration-fast: 150ms;") < css.index(
+        "@media (prefers-reduced-motion: reduce) {"
+    )
+
+
+@pytest.mark.django_db
 def test_state_overlays(theme: Theme):
     css = theme.emit_css()
     assert "--state-hover-overlay: 0.08;" in css
