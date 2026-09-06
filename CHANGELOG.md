@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] — 2026-09-06
+
+### Added
+
+- **Emitted CSS now respects `prefers-reduced-motion`** (#13). `emit_theme_css` appends a `@media (prefers-reduced-motion: reduce)` block that collapses the duration tokens (`--duration-fast`/`-normal`/`-slow`) to `0.01ms` — near-instant, but non-zero so `transitionend`/`animationend` listeners still fire. The block targets the same `selector_root` that declared the tokens, so it wins on source order. Easing tokens (`--ease-*`) are untouched: they describe a curve, not a duration. Consumers that drive their transitions off `var(--duration-*)` get reduced-motion support for free.
+- **Tailwind v4 integration guide** (#11). The README's Tailwind section now covers both generations. The v4 story is substantially different — CSS-first `@theme` instead of `tailwind.config.js`, and opacity modifiers compile to `color-mix()`, so the `-rgb` companions and `<alpha-value>` are no longer needed. Documents the same-name vs. `@theme inline` alias patterns (and why `inline` is mandatory for anything that changes per mode), a `@custom-variant` matching the three-state switcher including the system-follows-OS case, and the verified gotchas: `shadow-*` is not runtime-themeable on v4 (use `shadow-[var(--shadow-md)]`), `@theme inline` variables are never emitted to `:root`, and stylesheet order does *not* matter — Tailwind v4 puts its theme variables in `@layer theme` while this package emits unlayered CSS, which outranks any cascade layer regardless of document position. Verified by compiling the documented recipe into a live Wagtail site and checking computed styles in-browser (Tailwind CSS v4.3).
+
+### Changed
+
+- **Packaging metadata reconciled with the actual supported floor** (#14). The trove classifiers claimed Django 5.0/5.1 while `dependencies` said `Django>=4.2` and the floor had moved to Wagtail 7. Classifiers now declare **Django 4.2 and 5.2** — the versions supported across the whole `wagtail>=7.0,<8.0` range — and the CI matrix gained an explicit floor job (Python 3.11 · Wagtail 7.0.x · Django 4.2) plus a pinned Django axis, so the declared support is actually exercised rather than whatever pip happens to resolve.
+- **`wagtail` dependency now capped at `<8.0`.** The package is tested and classified for Wagtail 7 only; the open-ended `wagtail>=7.0` would have silently allowed an untested Wagtail 8. The cap will be lifted once 8.x is tested.
+
 ## [0.5.1] — 2026-07-19
 
 ### Fixed

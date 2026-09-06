@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "wagtail-visual-themes"
-version = "0.5.1"
+version = "0.6.0"
 description = "Reusable visual themes (colors, dark/light mode, radii, shadows, typography) for Wagtail pages."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -15,8 +15,8 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Web Environment",
     "Framework :: Django",
-    "Framework :: Django :: 5.0",
-    "Framework :: Django :: 5.1",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.2",
     "Framework :: Wagtail",
     "Framework :: Wagtail :: 7",
     "Intended Audience :: Developers",
@@ -29,9 +29,12 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Internet :: WWW/HTTP",
 ]
+# Django floor follows Wagtail 7.0's own floor (4.2). The declared Django
+# classifiers are the versions supported across the whole `wagtail>=7.0,<8.0`
+# range and exercised in CI: 4.2 (floor) and 5.2 (current LTS).
 dependencies = [
     "Django>=4.2",
-    "wagtail>=7.0",
+    "wagtail>=7.0,<8.0",
 ]
 
 [project.optional-dependencies]
