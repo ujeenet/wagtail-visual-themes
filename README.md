@@ -23,6 +23,8 @@ Reusable visual themes for [Wagtail](https://wagtail.org/) pages — colors, dar
 - [Theme switcher](#theme-switcher)
 - [Using the CSS variables](#using-the-css-variables)
 - [Tailwind integration](#tailwind-integration)
+  - [Tailwind v4 (CSS-first)](#tailwind-v4-css-first)
+  - [Tailwind v3](#tailwind-v3-tailwindconfigjs)
 - [Brand colors](#brand-colors)
 - [Theme resolution rules](#theme-resolution-rules)
 - [Permissions](#permissions)
@@ -567,7 +569,87 @@ a { color: var(--color-link); }
 
 ## Tailwind integration
 
-`wagtail-visual-themes` plays cleanly with Tailwind v3+. The trick: tell Tailwind your theme tokens are CSS variables containing RGB triplets.
+`wagtail-visual-themes` plays cleanly with both Tailwind generations. Pick the section for your version — the approach differs substantially:
+
+- **[Tailwind v4](#tailwind-v4-css-first)** — CSS-first (`@theme`), no config file, no RGB triplets needed.
+- **[Tailwind v3](#tailwind-v3-tailwindconfigjs)** — JS config, tokens wired through the `-rgb` companions.
+
+A note on ordering, since it's a natural worry: **you don't need to place `{% theme_css %}` after your compiled Tailwind stylesheet.** On v4, Tailwind emits its theme variables inside `@layer theme`, and this package emits *unlayered* CSS — and unlayered declarations beat layered ones in the cascade no matter their document order. On v3 the question doesn't arise, because Tailwind compiles your tokens straight into the utilities instead of re-declaring them. The one case that would need care is if you wrapped `{% theme_css %}` output in a cascade layer of your own; then normal layer-ordering rules apply.
+
+### Tailwind v4 (CSS-first)
+
+Tailwind v4 replaced `tailwind.config.js` with the `@theme` directive in CSS, and — the big win here — **dropped the `<alpha-value>` / RGB-triplet dance entirely**. Opacity modifiers now compile to `color-mix()`, so `bg-primary/50` works against a plain `var(--color-primary)` holding any CSS color. The `-rgb` companions this package emits are simply unused on v4.
+
+There are two ways to wire a token in, and you'll want both.
+
+**1. Same-name tokens (no `inline`).** Where our variable name already sits in a Tailwind namespace (`--color-*`, `--radius-*`, `--font-*`, `--ease-*`, `--leading-*`, `--tracking-*`), declare it in `@theme` with any placeholder value. Tailwind generates `var()`-referencing utilities, and `{% theme_css %}` overrides the value at runtime — including under `[data-theme="dark"]`.
+
+**2. Aliased tokens (`@theme inline`).** Where you want a nicer utility name than the raw token (`text-fg` rather than `text-text-primary`), or where our namespace differs from Tailwind's (`--font-size-*` vs Tailwind's `--text-*`, `--space-*` vs `--spacing-*`), point a Tailwind name at our variable. **`inline` is required here**: without it Tailwind emits `var(--color-fg)`, which resolves once at `:root` and would freeze your dark-mode override.
+
+```css
+/* app.css */
+@import "tailwindcss";
+@source "../templates";   /* Django templates live outside the CSS root */
+
+/* Match the three-state switcher: explicit dark, plus system-following. */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) { @slot; }
+  @media (prefers-color-scheme: dark) {
+    &:where([data-theme="system"], [data-theme="system"] *) { @slot; }
+  }
+}
+
+/* 1. Same-name: values below are placeholders, overridden by {% theme_css %} */
+@theme {
+  --color-bg: #ffffff;
+  --color-surface: #f8fafc;
+  --color-border: #e2e8f0;
+  --color-primary: #3b82f6;      /* one line per brand color slug */
+  --color-success: #16a34a;
+  --color-link: #2563eb;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --font-heading: system-ui, sans-serif;
+  --font-body: system-ui, sans-serif;
+}
+
+/* 2. Aliases — `inline` is mandatory for anything that changes per mode */
+@theme inline {
+  --color-fg: var(--color-text-primary);
+  --color-fg-secondary: var(--color-text-secondary);
+  --color-fg-muted: var(--color-text-muted);
+  --text-2xl: var(--font-size-2xl);
+  --spacing-4: var(--space-4);
+}
+```
+
+```html
+<div class="bg-surface text-fg border-border rounded-md p-4 dark:bg-surface">
+    <button class="bg-primary/50 font-heading rounded-lg">Click me</button>
+</div>
+```
+
+#### v4 caveats worth knowing
+
+| Token group | Status | Notes |
+|---|---|---|
+| Colors (`--color-*`) | ✅ Fully runtime-themeable | Opacity modifiers work with no `-rgb` companion. |
+| Radii (`--radius-*`) | ✅ Fully runtime-themeable | `rounded-md` → `border-radius: var(--radius-md)`. |
+| Fonts (`--font-*`) | ✅ Fully runtime-themeable | |
+| **Shadows (`--shadow-*`)** | ⚠️ **Not runtime-themeable** | Tailwind v4 parses shadow values at build time to support `shadow-color`, so `shadow-md` bakes in the placeholder and ignores your theme. Use an arbitrary value instead: `shadow-[var(--shadow-md)]`. |
+
+Two smaller ones:
+
+- **`@theme inline` variables aren't emitted to `:root`.** `--color-fg` above never appears in the compiled CSS — only its inlined `var(--color-text-primary)` reference inside utilities. That's intended, but it means you can't read `var(--color-fg)` from your own hand-written CSS; use the underlying token there.
+- **Placeholders only ever show up if `{% theme_css %}` is missing.** Because the theme CSS is unlayered it always outranks `@layer theme`, so the placeholder values in your `@theme` block act purely as a fallback for pages that don't emit a theme. Pick sensible ones and an un-themed page still looks right.
+- **The `@supports` fallback for opacity bakes in the placeholder.** `bg-primary/50` compiles a `color-mix(in oklab, var(--color-primary) …)` rule guarded by `@supports`, with a literal-color fallback for engines lacking `color-mix(in lab, …)`. Every current browser takes the `var()` branch; ancient ones get your placeholder shade. Choose placeholder values close to your real defaults and this is invisible.
+
+*Verified against Tailwind CSS v4.3, compiled into a live Wagtail site and checked in-browser.*
+
+### Tailwind v3 (`tailwind.config.js`)
+
+On v3 the trick is the opposite: tell Tailwind your theme tokens are CSS variables containing RGB triplets, via the `-rgb` companions this package emits.
 
 In `tailwind.config.js`:
 
@@ -618,7 +700,7 @@ You can now write Tailwind that respects the theme:
 </div>
 ```
 
-The `bg-primary/80` syntax requires the `-rgb` companion variables — `wagtail-visual-themes` emits these automatically for every solid color.
+The `bg-primary/80` syntax requires the `-rgb` companion variables — `wagtail-visual-themes` emits these automatically for every solid color. (On v4 this is no longer necessary; see above.)
 
 ---
 
@@ -1047,7 +1129,10 @@ This shouldn't happen on a fresh install: when the resolver returns `None`, `{% 
 - Make sure you have `{% theme_no_flash %}` and `{% theme_switcher %}` *both* loaded; the switcher writes the value, the no-flash script reads it on next paint.
 
 **Tailwind opacity (`bg-primary/50`) doesn't work.**
-Tailwind needs the RGB triplet form. Use `rgb(var(--color-primary-rgb) / <alpha-value>)` in the config (see [Tailwind integration](#tailwind-integration)). Gradients don't get an `-rgb` companion — that's by design.
+On **v3**, Tailwind needs the RGB triplet form — use `rgb(var(--color-primary-rgb) / <alpha-value>)` in the config (see [Tailwind integration](#tailwind-integration)). Gradients don't get an `-rgb` companion — that's by design. On **v4** no triplet is needed; if it still fails, check that the color is declared inside `@theme` rather than plain `:root`.
+
+**Tailwind v4 `shadow-md` ignores my theme's shadows.**
+Expected — v4 resolves shadow values at build time. Use `shadow-[var(--shadow-md)]` instead (see [Tailwind v4](#tailwind-v4-css-first)).
 
 **Editors saved a brand color but it doesn't appear in CSS.**
 Brand colors with `is_active=False` are skipped. Also confirm the brand color belongs to the active theme — they're scoped per-theme.
