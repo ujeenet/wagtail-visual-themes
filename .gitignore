@@ -43,6 +43,10 @@ htmlcov/
 .vscode/
 .DS_Store
 
+# Local agent tooling
+.claude/
+.playwright-mcp/
+
 # Test artifacts
 tests/static_collected/
 *.sqlite3
